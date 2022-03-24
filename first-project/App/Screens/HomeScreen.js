@@ -3,28 +3,32 @@ import React, { useState, createRef, Component, useEffect } from "react";
 import {TextInput, StyleSheet, Text,View,Image,ScrollView,Button} from "react-native";
 import { Navigate, Route } from "react-router-native";
 import axios from "axios";
+import  AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-
-const ip = "192.168.68.112";
+const ip = "192.168.68.100";
 
 export default function HomeScreen({ navigation, route }) {
   const [turfarray, setturfarray] = useState([]);
   const[devicelatitude,setdevicelatitude]=useState(null);
   const[devicelongitude,setdevicelongitude]=useState(null);
   const [devicecity,setdevicecity]=useState('');
+  
+
   useEffect(() => {
     
     const turfmenu = async () => {
+      
       //API to get all the turf details
       const GetTurfMenu = await axios({
         url: `http://${ip}:3000/GetTurfMenu`,
         method: "get",
+       
       });
       setturfarray(GetTurfMenu.data);
     };
     turfmenu();
-  //api tyo get the device location
+  //api to get the device location
     const getdevicelocation = async () => {
       
       var options = {
@@ -97,7 +101,7 @@ function deg2rad(deg) {
            <Text style={{ fontSize:17, color:'white'}}>{Phone}</Text>
            <Text style={{ fontSize:17, color:'#9ceb4d',fontWeight:'bold',textAlign:'right'}}>Rs.{PricePerHour} /Hr</Text>
            <Text style={{ fontSize:17, color:'#9ceb4d',fontWeight:'bold',textAlign:'left'}}>{distance(latitude,longitude,devicelatitude,devicelongitude)} Km</Text>
-           <View style={styles.buttoncontainer}>
+           <View style={{alignSelf:"flex-end",}} >
            <Button title="Book Now" onPress={()=>navigation.navigate("BookingDetailsScreen",
            {
             TurfName:TurfName,
@@ -111,7 +115,7 @@ function deg2rad(deg) {
             latitude:latitude,
             longitude:longitude,
 
-           })} color={'#ffffff'}/>
+           })} color={'#74ba29'}/>
            
            </View>
         </View>

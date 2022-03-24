@@ -3,6 +3,8 @@ const nodemailer = require('nodemailer');
 const cors = require('cors');
 const mysql = require("mysql");
 const { response } = require('express');
+const bcrypt = require ('bcrypt');
+const {create_token,verify}=require("./token")
 
 
 const app=express()
@@ -35,13 +37,13 @@ db.connect(err => {
 
 
 //API to add entry in User table after signup
-app.post("/SignUp", (req, res) => {
+app.post("/SignUp", async (req, res) => {
 
 const FirstName=req.body.firstName;
     const LastName=req.body.lastName;
     const MobileNo=req.body.mobileno;
     const Email=req.body.email;
-    const Password=req.body.password;
+    const Password=await bcrypt.hash(req.body.password, 5);
     const UserRole="Booker";
     const VerificationStatus="No";
     const OTP=req.body.sentOTP;
@@ -58,7 +60,7 @@ const FirstName=req.body.firstName;
     
 })
 //API to Verify User with otp
-   app.get("/CheckForOTP", (req, res) => {
+   app.get("/CheckForOTP", async (req, res) => {
     
     const Email=req.query.Email;
     console.log(Email);
@@ -73,7 +75,7 @@ const FirstName=req.body.firstName;
     
      })
      // API TO UPDATE VERIFICATION STATUS OF USER
-     app.put("/UpdateVerificationStatus", (req, res) => {
+     app.put("/UpdateVerificationStatus", async (req, res) => {
 
         const Email=req.body.email;
         const OTP= req.body.otp;
@@ -90,44 +92,61 @@ const FirstName=req.body.firstName;
         })
 
       //API to to get login details of a user
-   app.get("/GetLoginDetails", (req, res) => {
+   app.post("/GetLoginDetails", async (req, res) => {
     
-    const Email=req.query.Email;
-    
+    const Email=req.body.Email;
+    const Password=req.body.Password;
   
-     db.query("SELECT UserID, FirstName, Email, Password from USER WHERE Email=?",[Email],  ( error,result) => {
+     db.query("SELECT UserID, FirstName, Email, Password from USER WHERE Email=?",[Email], async ( error,result) => {
         
-        console.log(result);
-        res.send(result)
-                 
+        console.log(result); 
+        const validPassword = await bcrypt.compare(req.body.Password, result[0].Password);
+        console.log(validPassword);
+        if (!validPassword) 
+         {res.send({message:'Invalid Email or Password'});
+         }
+         else{
+             res.send({
+                 message:"Login Success",
+                 FirstName:result[0].FirstName,
+                 UserID:result[0].UserID,
+                 Email:result[0].Email})
+         }      
         });
         
     
      })  
 
        //API to to get Menu of turfs
-   app.get("/GetTurfMenu", (req, res) => {
+   app.get("/GetTurfMenu", async (req, res) => {
     
     db.query("SELECT * from Turf",  ( error,result) => {
-        
-        console.log(result);
+        try {
+            console.log(result);
         res.send(result)
+        } catch (error) {
+            res.status(406,{error:error.message})
+        }
                    
         });
-        
-    
+       
      })
 
      //API to get occupied slots of a Particular Turf
-     app.get("/GetAlreadyBookedSlots", (req, res) => {
-        TurfID=req.query.turfid;
-        DateOfBooking=req.query.DateOfBooking;
-        db.query("SELECT BookingStartTime, BookingEndTime from Bookings where TurfID=? and DateOfBooking=?", [TurfID,DateOfBooking] ,( error,result) => {
-            
-            console.log(result);
-            res.send(result)
-                       
-            });
+     app.get("/GetAlreadyBookedSlots",verify, async (req, res) => {
+         try {
+            TurfID=req.query.turfid;
+            DateOfBooking=req.query.DateOfBooking;
+            db.query("SELECT BookingStartTime, BookingEndTime from Bookings where TurfID=? and DateOfBooking=?", [TurfID,DateOfBooking] ,( error,result) => {
+                
+                console.log(result);
+                res.send(result)
+                           
+                });
+         } catch (error) {
+            res.status(406,{error:error.message})
+         }
+        
             
         
          })
@@ -149,6 +168,20 @@ app.post("/" ,(req,res) => {
         return true;
     });  
     res.send("sent")
+})
+
+app.get("/token",(req,res)=>{
+    const token=create_token()
+    res.send({token:token})
+})
+
+app.get("/hello",verify,(req,res)=>{
+    try {      
+        console.log(req.decodedData)
+         res.send({data:req.decodedData})
+    } catch (error) {
+        res.status(406,{error:error.message})
+    }
 })
 
 app.listen(3000,()=>{

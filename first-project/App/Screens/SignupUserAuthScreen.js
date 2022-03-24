@@ -3,7 +3,7 @@ import React, {useState, createRef,Component } from 'react';
 import { StyleSheet, Text, TextInput, View , Image, Button, Alert} from 'react-native';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from "axios";
-const ip="192.168.68.112";
+const ip="192.168.68.100";
 
 export default function SignupUserAuthScreen ({navigation,route}){
   

@@ -4,12 +4,17 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 platform :ios, '11.0'
 
+
+
 target 'firstproject' do
+  pod 'react-native-razorpay', :path => '../node_modules/react-native-razorpay'
+
   use_unimodules!
   config = use_native_modules!
-
+  
+  
   use_react_native!(:path => config["reactNativePath"])
-
+  
   # Uncomment to opt-in to using Flipper
   #
   # if !ENV['CI']

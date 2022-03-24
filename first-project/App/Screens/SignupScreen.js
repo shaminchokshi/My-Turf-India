@@ -21,7 +21,7 @@ const SignupScreen=({navigation,route}) => {
   const [PasswordError, setPasswordError] = useState(false);
   const [ConfirmPassword, setConfirmPassword] = useState('');
   const [ConfirmPasswordError, setConfirmPasswordError] = useState(false);
-  const ip="192.168.68.112";
+  const ip="192.168.68.100";
   
   const submit=async()=>{
     try {

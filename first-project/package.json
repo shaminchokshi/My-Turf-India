@@ -7,12 +7,15 @@
     "start": "react-native start"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.17.0",
+    "@react-native-community/async-storage": "^1.12.1",
     "@react-native-community/datetimepicker": "^3.5.2",
     "@react-native-mapbox-gl/maps": "^8.6.0-beta.0",
     "@react-navigation/native": "^6.0.8",
     "@react-navigation/native-stack": "^6.5.0",
     "@react-navigation/stack": "^6.1.1",
     "axios": "^0.25.0",
+    "bcrypt": "^5.0.1",
     "bingmaps-react": "^1.2.10",
     "body-parser": "^1.19.1",
     "datejs": "^1.0.0-rc3",

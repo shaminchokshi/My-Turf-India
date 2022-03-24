@@ -1,8 +1,8 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState, createRef, Component, useEffect } from "react";
-import {TextInput, StyleSheet, Text,View,Image,ScrollView,Button,TouchableOpacity} from "react-native";
+import {TextInput, StyleSheet, Text,View,Image,ScrollView,Button,TouchableOpacity,AppRegistry} from "react-native";
 import axios from "axios";
-import {PaymentIcon} from 'react-native-payment-icons'
+import {PaymentIcon} from 'react-native-payment-icons';
 import Icon from "react-native-vector-icons/Entypo";
 
 
@@ -49,13 +49,11 @@ function creditCardValidation(creditCradNum)
      {
       return 'diners';
      }
-  //  else
-  //    {
-  //    setCardNumberError(true)
-  //    }
+  
 }
 
 
+   
   const [CreditCardRender,SetCreditCardRender]=useState(false);
   const [CardNo, setCardNo] = useState('');  
   const [CardExpiry, setCardExpiry] = useState('');
@@ -65,6 +63,7 @@ function creditCardValidation(creditCradNum)
   return(
 
     <>
+    
     <View style={styles.container}>
     <View style={styles.formcontainer}>
     

@@ -1,14 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
-import React, {useState, createRef, Component, useEffect} from 'react';
-import { StyleSheet, Text, TextInput,ScrollView, View , Image, Button, Alert,Linking} from 'react-native';
+import React, {useState, createRef, Component} from 'react';
+import { StyleSheet, Text,ScrollView, View , Button, Alert,Linking} from 'react-native';
 import axios from "axios";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
-import { Dropdown, MultiSelect } from 'react-native-element-dropdown';
+import { MultiSelect } from 'react-native-element-dropdown';
 import Icon from "react-native-vector-icons/Entypo";
+import  AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-const ip="192.168.68.112";
+const ip="192.168.68.100";
 
 export default function BookingDetailsScreen ({navigation,route}){
   const [Slotarray, setSlotarray] = useState([]);//array of booked slots
@@ -20,13 +20,26 @@ export default function BookingDetailsScreen ({navigation,route}){
   const [dropdown, setDropdown] = useState(null);
   const [selected, setSelected] = useState([]);
   const [stringdate,setstringdate]=useState('');
+  const [asyncstoragetoken,setasyncstoragetoken] =useState('');
+// function to get data (auth key) from the async storage 
+  const GetAsyncStorageData = async()=>{
+    try {
+      await AsyncStorage.getItem('token').then(value => {
+        if(value!=null){
+         setasyncstoragetoken(value);
+         
+        }
+      })
+    } catch (error) {
+      console.log(error);
+    }
+   }
+ GetAsyncStorageData();
   
 
-  
- 
-  
+   
 
-   //on submit function
+//on submit function
   const submit=async()=>{
     if(selected.length * route.params.PricePerHour<route.params.PricePerHour){
      Alert.alert("Please select a timeslot for booking !!")
@@ -66,7 +79,7 @@ export default function BookingDetailsScreen ({navigation,route}){
  
 
    //function that will be fired on on change of the datepicker and will convert date to string YYYY-MM-DD
-  const onChange = (event, selectedDate) => {
+  const onChange = async (event, selectedDate) => {
     const currentDate = selectedDate || BookingDate;
     
     setBookingDate(currentDate);
@@ -96,6 +109,9 @@ export default function BookingDetailsScreen ({navigation,route}){
       const GetAlreadyBookedSlots = await axios({
         url: `http://${ip}:3000/GetAlreadyBookedSlots?turfid=${IDofTurf}&DateOfBooking=${Entrydate}`,
         method: "get",
+        headers: {
+          Authorization: asyncstoragetoken,
+       }
       });
       setSlotarray(GetAlreadyBookedSlots.data);
     };
@@ -136,17 +152,17 @@ export default function BookingDetailsScreen ({navigation,route}){
             ></Icon>
          <Text style={styles.heading}>  {route.params.TurfStartTime}-{route.params.TurfEndTime}</Text> 
          </View>
-         <View style={styles.buttoncontainer}>
+         <View style={styles.iconmenu}>
          <Icon
             name="direction"
-            color="#ffffff"
+            color="#9ceb4d"
             alignSelf='flex-start'
             size={30}
             onPress={() => Linking.openURL(`http://maps.google.com/maps?q=${route.params.latitude},${route.params.longitude}`)}
           ></Icon>
           <Button
             title="Get Directions"
-            color="#ffffff"
+            color="#9ceb4d"
             alignSelf='flex-start'
             onPress={() => Linking.openURL(`http://maps.google.com/maps?q=${route.params.latitude},${route.params.longitude}`)}
           />
@@ -169,14 +185,17 @@ export default function BookingDetailsScreen ({navigation,route}){
 
           <Text style={{ fontWeight:"bold", fontSize:15, color:'#ffffff',paddingBottom:10, alignSelf:'flex-start'}}>Time Slots Already booked:</Text>
           
-          {Slotarray.map(({BookingStartTime,BookingEndTime }) => (
+         { Slotarray.length==[] ?<View style = {styles.showtext} >
+            <Text>None</Text>
+            
+           </View>:(Slotarray.map(({BookingStartTime,BookingEndTime }) => (
             
             <View style = {styles.showtext} >
              <Text style={slots.push(BookingStartTime)}>{BookingStartTime}-{BookingEndTime}</Text>
-             
-            </View>
+            </View> 
             
-          ))}
+            )))}
+            
           
           <Text style={{ fontWeight:"bold", fontSize:15, color:'#ffffff',paddingBottom:10, alignSelf:'flex-start'}}>Time Slots Available:</Text>
            <ScrollView >
@@ -241,7 +260,7 @@ const styles = StyleSheet.create({
       alignItems:"center",
       marginBottom:8,
       alignSelf:'flex-start',
-    
+      
     },
      
    showavailabletimeslots: {

@@ -1,8 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
 import React, {useState, createRef} from 'react';
-import {TextInput, StyleSheet, Text, View , Image, ScrollView,Button} from 'react-native';
+import {TextInput, StyleSheet, Text, View , ScrollView,Button} from 'react-native';
+import  AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from 'axios';
+
+
 
 export default function LoginScreen({navigation,route}) {
 
@@ -12,8 +15,8 @@ export default function LoginScreen({navigation,route}) {
   const [EmailError, setEmailError] = useState(false);
   const [Password, setPassword] = useState('');
   const [PasswordError, setPasswordError] = useState(false);
-
-  const ip="192.168.68.112";
+  var asyncstoragetoken;
+  const ip="192.168.68.100";
 
   const submit=async()=>{
     var mailformat = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
@@ -21,34 +24,66 @@ export default function LoginScreen({navigation,route}) {
     const getuserdetail=async()=>{
       const GetLoginDetails = await axios(
         {
-          url:`http://${ip}:3000/GetLoginDetails?Email=${Email}`,
-          method:"get"
+          url:`http://${ip}:3000/GetLoginDetails`,
+          method:"post",
+          data:{
+            Email:Email,
+            Password:Password,
+          }
           
         }
         
       );return GetLoginDetails.data;
     }
       
-        const Userobj= await getuserdetail();
-        if(Userobj[0]==null){
-          setEmailError(true)
+
+    const getjwt=async()=>{
+      const token = await axios(
+        {
+          url:`http://${ip}:3000/token`,
+          method:"get",
+          
+          
         }
         
-       else{
-       if(Password==Userobj[0].Password && Email==Userobj[0].Email){
-        console.log(Userobj[0].UserID);
-        setEmailError(false)
+      );
+      return token.data["token"];
+      
+      
+    }
+
+   
+
+        const Userobj= await getuserdetail();
+        console.log(Userobj);
+        
+        
+       
+       if(Userobj.message=="Login Success" ){
+        console.log(Userobj.UserID);
+        setEmailError(false);
+        setPasswordError(false)
+        const Token=await getjwt();
+        try {
+          await AsyncStorage.setItem('token',Token);
+        } catch (error) {
+          console.log(error);
+        }
+        
+        
+        
         navigation.navigate("HomeScreen", {
-          "FirstName":Userobj[0].FirstName,
-          "UserID":Userobj[0].UserID
+          "FirstName":Userobj.FirstName,
+          "UserID":Userobj.UserID
           }
+         
           )
        }
-       else{
+       else if(Userobj.message=='Invalid Email or Password'){
          setEmailError(false)
          setPasswordError(true);
        }
-      }
+      
     
 
   }
@@ -57,7 +92,7 @@ export default function LoginScreen({navigation,route}) {
         <>
         <View style={styles.container}>
         <View>
-        <Icon name="soccer-field" color="#36c249" size="70"></Icon>
+        <Icon name="soccer-field" color="#36c249" size={70}></Icon>
         </View>
         <View>
         <Text style={{fontWeight:"bold",paddingLeft:20, paddingBottom:30, fontSize:40, color:'#41d955'}}>{"My Turf India"}</Text>
