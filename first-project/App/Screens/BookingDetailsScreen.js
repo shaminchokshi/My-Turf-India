@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import React, {useState, createRef, Component} from 'react';
-import { StyleSheet, Text,ScrollView, View , Button, Alert,Linking} from 'react-native';
+import React, {useState} from 'react';
+import { StyleSheet, Text,ScrollView, View , Button, Alert,Linking,ImageBackground,TouchableOpacity} from 'react-native';
 import axios from "axios";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
@@ -8,7 +8,7 @@ import { MultiSelect } from 'react-native-element-dropdown';
 import Icon from "react-native-vector-icons/Entypo";
 import  AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ip="192.168.68.100";
+const ip="192.168.68.109";
 
 export default function BookingDetailsScreen ({navigation,route}){
   const [Slotarray, setSlotarray] = useState([]);//array of booked slots
@@ -124,9 +124,19 @@ export default function BookingDetailsScreen ({navigation,route}){
   return(
         <>
         <View style={styles.container} >
-         <ScrollView>
+        <ImageBackground
+         source={require("../Assets/Images/blob.png")}
+         style={{width:"100%",height:770, position: 'absolute', top: -310, left: 0, right: 0, bottom: 0,}}
+         ></ImageBackground>
+         
+         <ScrollView style={{width:"100%"}}>
+           
          <View style={styles.formcontainer} >
-         <Text style={{ fontWeight:"bold", fontSize:30, color:'#9ceb4d',paddingBottom:10, alignSelf:'flex-start'}}>#{route.params.TurfID}) {route.params.TurfName}</Text> 
+         <ImageBackground
+         source={require("../Assets/Images/soccershoes.png")}
+         style={{ opacity:0.9,width:"100%",height:400, position: 'absolute', top: 440, left: -80, right: 0, bottom: 0}}
+         ></ImageBackground>
+         <Text style={{ fontWeight:"bold", fontSize:27, color:'#9ceb4d',paddingBottom:10, alignSelf:'flex-start'}}>{route.params.TurfName}</Text> 
          <View style={styles.iconmenu}>
          <Icon
             name="location-pin"
@@ -167,21 +177,29 @@ export default function BookingDetailsScreen ({navigation,route}){
             onPress={() => Linking.openURL(`http://maps.google.com/maps?q=${route.params.latitude},${route.params.longitude}`)}
           />
           </View>
-         <Text style={{ fontSize:20, color:'#9ceb4d',fontWeight:'bold',textAlign:'right',alignSelf:'flex-end'}}>Rs. {route.params.PricePerHour}/Hr</Text>
+         <Text style={{ paddingLeft:10 ,fontSize:20, color:'#9ceb4d',paddingBottom:10,textAlign:'right',alignSelf:'flex-start'}}> ₹ {route.params.PricePerHour}/Hr</Text>
          
          <Text style={{ fontWeight:"bold", fontSize:15, color:'#ffffff',paddingBottom:10, alignSelf:'flex-start'}}>Choose your Date of Booking : </Text>
-        
-        
+         <View style={styles.iconmenu}>
+         <Icon
+            name="calendar"
+            color="#9ceb4d"
+            alignSelf='flex-start'
+            size={30}
+            ></Icon>
+
+
          <DateTimePicker style={styles.datepicker}
          minDate={new Date()}
          mode='date'
-         display="spinner"
+         display="default"
          value={BookingDate}
          onChange={onChange}
          textColor="#ffffff"
+         fontSize={12}
          
          />
-          
+         </View> 
 
           <Text style={{ fontWeight:"bold", fontSize:15, color:'#ffffff',paddingBottom:10, alignSelf:'flex-start'}}>Time Slots Already booked:</Text>
           
@@ -198,7 +216,7 @@ export default function BookingDetailsScreen ({navigation,route}){
             
           
           <Text style={{ fontWeight:"bold", fontSize:15, color:'#ffffff',paddingBottom:10, alignSelf:'flex-start'}}>Time Slots Available:</Text>
-           <ScrollView >
+           <ScrollView style={{width:"100%"}}>
            
            <View>
           <MultiSelect
@@ -209,6 +227,15 @@ export default function BookingDetailsScreen ({navigation,route}){
           placeholder="Select Time Slot"
           value={selected}
           textColor="#ffffff"
+          activeColor="#9ceb4d"
+          renderSelectedItem={(item, unSelect) => (
+            <TouchableOpacity onPress={() => unSelect && unSelect(item)}>
+              <View style={styles.selectedStyle}>
+                <Text style={styles.textSelectedStyle}>{item.label}</Text>
+                <Icon color="white" name="circle-with-cross" size={15} />
+              </View>
+            </TouchableOpacity>
+          )}
           onChange={item => {
           setSelected(item);
               console.log('selected', item);
@@ -231,9 +258,10 @@ export default function BookingDetailsScreen ({navigation,route}){
           
           </ScrollView> 
           <Text style={{  fontSize:23, color:'#ffffff',paddingBottom:20, alignSelf:'center'}}>------------------------------</Text>
-           <Text style={{ fontSize:20, color:'#9ceb4d',fontWeight:'bold'}}>Grand Total = {selected.length * route.params.PricePerHour}</Text>
-          <Button title="Pay Now" color={'#9ceb4d'} onPress={submit}/>
-          
+           <Text style={{ fontSize:20, color:'#cbff1f',fontWeight:'bold',paddingBottom:20}}>Grand Total = {selected.length * route.params.PricePerHour}</Text>
+          <View style={styles.buttoncontainer}>
+          <Button title="Pay Now" color={'#cbff1f'} onPress={submit}/>
+          </View>
           </View>
           </ScrollView>
     </View>
@@ -243,7 +271,7 @@ export default function BookingDetailsScreen ({navigation,route}){
 }
 const styles = StyleSheet.create({
     container: {
-      padding:10,
+      
       flex: 1,
       backgroundColor:'#141414',
       
@@ -274,19 +302,22 @@ const styles = StyleSheet.create({
     },
 
     formcontainer: {
-      padding:10,
+      alignSelf:"center",
+      paddingLeft:10,
+      paddingTop:10,
       backgroundColor:'#212121',
-      width:350,
+      width:"85%",
       borderRadius: 20,
       marginBottom:30,
       marginTop:10,
-      alignItems:'center'
+      alignItems:'center',
+      opacity:0.9,
     },
     
     
     input: {
       
-      alignSelf:'flex-start',
+      
       borderRadius : 10,
       paddingLeft:15,
        marginTop:10,
@@ -294,7 +325,7 @@ const styles = StyleSheet.create({
        backgroundColor:'#ffffff', 
        fontSize:18,
        height:45,
-       width:250,
+       width:"60%",
        borderColor: '#9ceb4d',
        borderWidth: 3,
       },
@@ -303,18 +334,19 @@ const styles = StyleSheet.create({
       
         alignSelf:'flex-start',
         borderRadius : 10,
-        paddingLeft:15,
-         marginTop:10,
-         marginBottom:10,
+        paddingLeft:5,
+         marginLeft:10,
+         marginBottom:5,
          backgroundColor:'#212121', 
          fontSize:18,
-         height:100,
-         width:250,
+         height:50,
+         width:"80%",
          borderColor: '#9ceb4d',
          borderWidth: 3,
         },
+
      heading:{
-      fontSize:20, 
+      fontSize:18, 
       color:'#ffffff',
       
       alignSelf:'flex-start',
@@ -329,14 +361,39 @@ const styles = StyleSheet.create({
   },
   
   buttoncontainer:{
-    
-    padding:5,
-    alignSelf:"flex-start", 
+    width:"45%",
+    alignSelf:"flex-end", 
     flexDirection:'row',
     backgroundColor:'#74ba29',
-    borderRadius:10,
-    justifyContent:'center'
-},
+    borderBottomRightRadius:20,
+    borderTopLeftRadius:20,
+    justifyContent:'center',
+    shadowColor: '#e5eb34',
+    shadowOffset: {width: -5, height: -5},
+    shadowOpacity: 0.7,
+    shadowRadius: 35 
+  },
+
+  selectedStyle: {
+    
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 14,
+    backgroundColor: '#9cdb25',
+    marginTop: 8,
+    marginRight: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    
+  },
+
+  textSelectedStyle: {
+    marginRight: 5,
+    fontSize: 13,
+    fontWeight:"bold",
+    color:"white"
+  },
 
  map: {
     flex: 1

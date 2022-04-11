@@ -3,7 +3,7 @@ import React, {useState, createRef,Component } from 'react';
 import { StyleSheet, Text, TextInput, View , Image, Button, Alert} from 'react-native';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from "axios";
-const ip="192.168.68.100";
+const ip="192.168.68.109";
 
 export default function SignupUserAuthScreen ({navigation,route}){
   
@@ -67,6 +67,7 @@ export default function SignupUserAuthScreen ({navigation,route}){
           placeholder='OTP'
           title='OTP'
           keyboardType='numeric'
+          returnKeyType='done'
           onChangeText={(value)=>setOTP(value)}
           value={OTP}
          />

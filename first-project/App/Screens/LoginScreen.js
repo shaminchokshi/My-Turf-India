@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import React, {useState, createRef} from 'react';
-import {TextInput, StyleSheet, Text, View , ScrollView,Button} from 'react-native';
+import React, {useState} from 'react';
+import {TextInput, StyleSheet, Text, View ,Button,ImageBackground, ScrollView} from 'react-native';
 import  AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from 'axios';
@@ -16,7 +16,7 @@ export default function LoginScreen({navigation,route}) {
   const [Password, setPassword] = useState('');
   const [PasswordError, setPasswordError] = useState(false);
   var asyncstoragetoken;
-  const ip="192.168.68.100";
+  const ip="192.168.68.109";
 
   const submit=async()=>{
     var mailformat = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
@@ -60,24 +60,39 @@ export default function LoginScreen({navigation,route}) {
         
        
        if(Userobj.message=="Login Success" ){
-        console.log(Userobj.UserID);
+        
         setEmailError(false);
         setPasswordError(false)
         const Token=await getjwt();
         try {
           await AsyncStorage.setItem('token',Token);
+          await AsyncStorage.setItem('userobject',
+          JSON.stringify({"FirstName": Userobj.FirstName,
+           "UserID": Userobj.UserID,
+           "UserRole":Userobj.UserRole,
+        }));
+          
         } catch (error) {
           console.log(error);
         }
         
         
-        
+        if(Userobj.UserRole=="Booker")
+        {
         navigation.navigate("HomeScreen", {
           "FirstName":Userobj.FirstName,
           "UserID":Userobj.UserID
+          })}
+          
+          if(Userobj.UserRole=="Turf Owner"){
+            navigation.navigate("TurfOwnerHomeScreen", {
+              "FirstName":Userobj.FirstName,
+              "UserID":Userobj.UserID,
+              
+              })
           }
          
-          )
+          
        }
        else if(Userobj.message=='Invalid Email or Password'){
          setEmailError(false)
@@ -91,16 +106,20 @@ export default function LoginScreen({navigation,route}) {
     return(
         <>
         <View style={styles.container}>
+         <ImageBackground
+         source={require("../Assets/Images/blob.png")}
+         style={{width:"100%",height:900, position: 'absolute', top: -310, left: 0, right: 0, bottom: 0,}}
+         ></ImageBackground>
         <View>
-        <Icon name="soccer-field" color="#36c249" size={70}></Icon>
+        <Icon name="soccer-field" color="#3a7a25" size={70}></Icon>
         </View>
         <View>
-        <Text style={{fontWeight:"bold",paddingLeft:20, paddingBottom:30, fontSize:40, color:'#41d955'}}>{"My Turf India"}</Text>
+        <Text style={{fontWeight:"bold",paddingLeft:20, paddingBottom:"2%", fontSize:45, color:'#3a7a25'}}>{"My Turf India"}</Text>
      
         </View>
         
         <View style={styles.formcontainer}>
-        <Text style={{paddingLeft:20, paddingTop:20, paddingBottom:20, fontSize:40, color:'#41d955'}}>{"Login"}</Text>
+        <Text style={{paddingLeft:20, paddingTop:"5%", paddingBottom:20, fontSize:40, color:'#41d955'}}>{"Login"}</Text>
          
          <TextInput style={styles.input}
         placeholder='Email'
@@ -117,6 +136,7 @@ export default function LoginScreen({navigation,route}) {
 
          <TextInput style={styles.input}
         placeholder='Password'
+        secureTextEntry={true}
         onChangeText={(value)=>setPassword(value)}
         value={Password}
          />
@@ -126,32 +146,46 @@ export default function LoginScreen({navigation,route}) {
            <Text style={{color:"#ffffff"}}>Incorrect Email or password</Text>
            </View>
          }
-
+        <>
+         <Button 
+         title='Forgot Password '
+        onPress={() => navigation.navigate("ForgotPasswordScreen")}
+        />
+         </>
+         <View style={styles.buttoncontainer}>
          <Button title="Log in" onPress={submit} color={'#9ceb4d'}/>
-         
+         </View>
+          
         </View>
+        <Text style={{  fontSize:18, color:'white',paddingBottom:10}}>Don't have an account ?</Text>
+        <Button
+        title='Signup'
+        color={'#9ceb4d'}
+        onPress={() => navigation.navigate("SignupScreen")}/>
         </View>
+        
         </>
     );
 }
 const styles = StyleSheet.create({
     
   container: {
-    padding:10,
+    
     flex: 1,
     backgroundColor:'#141414',
     alignItems:'center'
     },
   
   formcontainer: {
-      padding:10,
+      paddingTop:10,
       backgroundColor:'#212121',
-      width:350,
+      width:"82%",
       borderRadius: 20,
       marginBottom:30,
       marginTop:10,
       marginHorizontal:20,
-      alignItems:'center'
+      alignItems:'center',
+      
     },
     topcontainer:{
       backgroundColor:'#141414',
@@ -167,7 +201,21 @@ const styles = StyleSheet.create({
      backgroundColor:'#ffffff', 
      fontSize:20, 
      height:50,
-     width:300,
+     width:"92%",
+    },
+
+    buttoncontainer:{
+      width:"50%",
+      alignSelf:"flex-end", 
+      flexDirection:'row',
+      backgroundColor:'#74ba29',
+      borderBottomRightRadius:20,
+      borderTopLeftRadius:20,
+      justifyContent:'center',
+      shadowColor: '#e5eb34',
+      shadowOffset: {width: -5, height: -5},
+      shadowOpacity: 0.7,
+      shadowRadius: 35 
     },
     
   });
