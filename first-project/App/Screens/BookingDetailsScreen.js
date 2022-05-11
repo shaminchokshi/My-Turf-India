@@ -1,14 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
-import React, {useState} from 'react';
-import { StyleSheet, Text,ScrollView, View , Button, Alert,Linking,ImageBackground,TouchableOpacity} from 'react-native';
+import React, {useState,useEffect} from 'react';
+import { StyleSheet, Text,ScrollView, View , Button, Alert,Linking,ImageBackground,TouchableOpacity,Platform} from 'react-native';
 import axios from "axios";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
 import { MultiSelect } from 'react-native-element-dropdown';
 import Icon from "react-native-vector-icons/Entypo";
 import  AsyncStorage from '@react-native-async-storage/async-storage';
+import {ip} from "../../constants";
 
-const ip="192.168.68.109";
 
 export default function BookingDetailsScreen ({navigation,route}){
   const [Slotarray, setSlotarray] = useState([]);//array of booked slots
@@ -21,6 +21,12 @@ export default function BookingDetailsScreen ({navigation,route}){
   const [selected, setSelected] = useState([]);
   const [stringdate,setstringdate]=useState('');
   const [asyncstoragetoken,setasyncstoragetoken] =useState('');
+  const [PaymentOrderID,setPaymentOrderID]=useState("");
+  const [pickervisible,setpickervisible]=useState(false);
+  var PaymentOrderIDs;
+
+
+
 // function to get data (auth key) from the async storage 
   const GetAsyncStorageData = async()=>{
     try {
@@ -37,7 +43,7 @@ export default function BookingDetailsScreen ({navigation,route}){
  GetAsyncStorageData();
   
 
-   
+ 
 
 //on submit function
   const submit=async()=>{
@@ -45,6 +51,30 @@ export default function BookingDetailsScreen ({navigation,route}){
      Alert.alert("Please select a timeslot for booking !!")
     }
     else{
+       //api to get order id for payment by user
+      const getorderid = async () => {
+      
+        
+        const GetOrderId = await axios({
+          url: `http://${ip}:3000/create/userorderId`,
+          method: "post",
+          headers:{
+            Authorization: asyncstoragetoken,
+          },
+         data:{
+           amount: ( selected.length * route.params.PricePerHour * 100),
+           receipt: `${route.params.TurfName},${stringdate}`,
+           mtfcommission:(selected.length*100*100),
+         }
+        });
+        PaymentOrderIDs =GetOrderId.data.orderId;
+        console.log(PaymentOrderIDs);
+       
+      };
+      await getorderid();
+    
+    
+    
       navigation.navigate("PaymentScreen",
            {
             UserID: route.params.UserID,
@@ -53,13 +83,16 @@ export default function BookingDetailsScreen ({navigation,route}){
             DateOfBooking: stringdate,
             BookingStartTime:selected,
             PaymentStatus: selected.length * route.params.PricePerHour,
-            
+            orderid:PaymentOrderIDs,
 
-           })
+           });
     }
   }
 
 
+
+
+  
   //function to create time slots to display availible slots
   const createTimeSlots=( FromTime,ToTime )=>{
     let starttime=moment(FromTime,'HH:mm:ss');
@@ -97,11 +130,12 @@ export default function BookingDetailsScreen ({navigation,route}){
     getsbookedslots([year, month, day].join('-'));    
     setstringdate([year, month, day].join('-'));
     setTimeSlots(createTimeSlots(route.params.TurfStartTime, route.params.TurfEndTime));
+    setpickervisible(false);
     };
 
 
 
-
+//API to get all the booked slots of a turf on a  particular date details
   function getsbookedslots(Entrydate){
     const slotmenu = async () => {
       
@@ -181,38 +215,52 @@ export default function BookingDetailsScreen ({navigation,route}){
          
          <Text style={{ fontWeight:"bold", fontSize:15, color:'#ffffff',paddingBottom:10, alignSelf:'flex-start'}}>Choose your Date of Booking : </Text>
          <View style={styles.iconmenu}>
+         <>
          <Icon
             name="calendar"
             color="#9ceb4d"
             alignSelf='flex-start'
             size={30}
+            onPress={()=>setpickervisible(true)}
             ></Icon>
-
-
-         <DateTimePicker style={styles.datepicker}
-         minDate={new Date()}
-         mode='date'
-         display="default"
-         value={BookingDate}
-         onChange={onChange}
-         textColor="#ffffff"
-         fontSize={12}
-         
+            <Button
+         title='Select Date'
+         color="#9ceb4d"
+         onPress={()=>{setpickervisible(true)}}
          />
+         </>
+
          </View> 
 
+         {pickervisible &&
+          
+          <DateTimePicker style={styles.datepicker}
+          minDate={new Date()}
+          mode='date'
+          display="default"
+          value={BookingDate}
+          onChange={onChange}
+          textColor="#ffffff"
+          fontSize={12}
+          
+          />
+          }
+
+         <View style={{alignSelf:'flex-start'}}>
+          <Text style={{fontWeight:"bold", paddingBottom:"2%",fontSize:15, color:'#9ceb4d'}}>Selected Date : {stringdate}</Text>
+          </View>
           <Text style={{ fontWeight:"bold", fontSize:15, color:'#ffffff',paddingBottom:10, alignSelf:'flex-start'}}>Time Slots Already booked:</Text>
           
          { Slotarray.length==[] ?<View style = {styles.showtext} >
             <Text>None</Text>
             
-           </View>:(Slotarray.map(({BookingStartTime,BookingEndTime }) => (
+           </View>:Slotarray.map(({BookingStartTime,BookingEndTime }) => (
             
             <View style = {styles.showtext} >
              <Text style={slots.push(BookingStartTime)}>{BookingStartTime}-{BookingEndTime}</Text>
             </View> 
             
-            )))}
+            ))}
             
           
           <Text style={{ fontWeight:"bold", fontSize:15, color:'#ffffff',paddingBottom:10, alignSelf:'flex-start'}}>Time Slots Available:</Text>
@@ -333,16 +381,16 @@ const styles = StyleSheet.create({
       datepicker: {
       
         alignSelf:'flex-start',
-        borderRadius : 10,
+        //borderRadius : 10,
         paddingLeft:5,
          marginLeft:10,
          marginBottom:5,
-         backgroundColor:'#212121', 
+         //backgroundColor:'#212121', 
          fontSize:18,
          height:50,
          width:"80%",
-         borderColor: '#9ceb4d',
-         borderWidth: 3,
+         //borderColor: '#9ceb4d',
+         //borderWidth: 3,
         },
 
      heading:{
@@ -355,7 +403,7 @@ const styles = StyleSheet.create({
      
      iconmenu:{
       paddingLeft:5,
-      paddingBottom:10,
+      paddingBottom:"1%",
       alignSelf:"flex-start", 
       flexDirection:'row'
   },

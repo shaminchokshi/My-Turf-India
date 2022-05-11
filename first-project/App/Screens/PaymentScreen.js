@@ -1,14 +1,16 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState, createRef, Component, useEffect } from "react";
-import {TextInput, StyleSheet, Text,View,Image,ScrollView,Button,TouchableOpacity,AppRegistry} from "react-native";
+import {TextInput, StyleSheet, Text,View,Image,ImageBackground,ScrollView,Button,TouchableOpacity,TouchableHighlight,SafeAreaView,AppRegistry} from "react-native";
 import axios from "axios";
 import {PaymentIcon} from 'react-native-payment-icons';
 import Icon from "react-native-vector-icons/Entypo";
-
-
+import {ip} from "../../constants"
+import { WebView } from 'react-native-webview';
 export default function PaymentScreen({ navigation, route }) {
 
 
+
+  
   
 
 function creditCardValidation(creditCradNum)
@@ -53,7 +55,7 @@ function creditCardValidation(creditCradNum)
 }
 
 
-   
+ 
   const [CreditCardRender,SetCreditCardRender]=useState(false);
   const [CardNo, setCardNo] = useState('');  
   const [CardExpiry, setCardExpiry] = useState('');
@@ -65,9 +67,13 @@ function creditCardValidation(creditCradNum)
     <>
     
     <View style={styles.container}>
+    {/* <ImageBackground
+         source={require("../Assets/Images/blob.png")}
+         style={{width:"100%",height:900, position: 'absolute', top: -310, left: 0, right: 0, bottom: 0,}}
+         ></ImageBackground>
     <View style={styles.formcontainer}>
     
-    <Text style={{ fontWeight:"bold", fontSize:30, color:'#9ceb4d',paddingBottom:10, alignSelf:'flex-start'}}>#{route.params.TurfID}) {route.params.Turfname}</Text>
+    <Text style={{ fontWeight:"bold", fontSize:30, color:'#9ceb4d',paddingBottom:10, alignSelf:'flex-start'}}>{route.params.Turfname}</Text>
     <Text style={styles.heading}>Booking Date :</Text>
     <Text style={styles.subheading}>{route.params.DateOfBooking}</Text>
     <Text style={styles.heading}>Booking Time slots:</Text>
@@ -149,10 +155,13 @@ function creditCardValidation(creditCradNum)
          
          
           </View>
-         }
-
-    </View>
-
+    }
+        
+    </View> */}
+    
+    <WebView 
+          source={{ uri: `https://mticheckout.htmlsave.net/?orderid=${route.params.orderid}` }} 
+        />
    
     </View>
     
@@ -163,7 +172,7 @@ function creditCardValidation(creditCradNum)
 const styles = StyleSheet.create({
    
     container: {
-      padding:10,
+      
       flex: 1,
       backgroundColor:'#141414',
       alignItems:'center',
@@ -175,12 +184,13 @@ const styles = StyleSheet.create({
     formcontainer: {
         padding:10,
         backgroundColor:'#212121',
-        width:350,
+        width:"82%",
         borderRadius: 20,
         marginBottom:30,
         marginTop:10,
         //marginHorizontal:20,
-        alignItems:'center'
+        alignItems:'center',
+        opacity:0.95,
       },
       topcontainer:{
         backgroundColor:'#141414',
@@ -197,7 +207,7 @@ const styles = StyleSheet.create({
        },
 
        subheading:{
-        fontSize:20, 
+        fontSize:18, 
         color:'#9ceb4d',
         paddingBottom:10,
         alignSelf:'flex-start',
@@ -223,7 +233,7 @@ const styles = StyleSheet.create({
         
         padding:8,
         backgroundColor:'#a9ffa6',
-        width:300,
+        width:"95%",
         borderRadius: 20,
         marginBottom:30,
         marginTop:10,
@@ -262,3 +272,4 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
       },
     })
+    

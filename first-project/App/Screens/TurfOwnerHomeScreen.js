@@ -6,8 +6,8 @@ import axios from "axios";
 import  AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from "react-native-vector-icons/FontAwesome";
 import {Menu, MenuOptions, MenuOption, MenuTrigger,} from 'react-native-popup-menu';
+import {ip} from "../../constants"
 
-const ip = "192.168.68.109";
 
 export default function TurfOwnwerHomeScreen({ navigation, route }) {
 const [TodaysBookingsRender,SetTodaysBookingsRender]=useState(true);
@@ -90,6 +90,8 @@ const seemyturfs= async()=>{
   };
   GetIDofTurf();
 }
+
+
 
 
 function getsbookedslots(IDofTurf){
@@ -182,20 +184,23 @@ return(
     <View style={{padding:10}}>
       <Text style={{fontWeight:'bold', paddingBottom:5 ,fontSize:18, color:'white',paddingBottom:10,alignSelf:"flex-start"}}>Click the Turf for which you want to see today's Bookings</Text>
      {idofturf.map(({TurfID,TurfName }) => (
+       <View style={{padding:"1%"}}>
        <Button 
              title={TurfID +")"+TurfName}
-             color='#9ceb4d'
+             color='#6cb52b'
              onPress={()=>getsbookedslots(TurfID,new Date())}
              />
+             </View>
        ))}
       <Text style={{fontWeight:'bold', paddingBottom:5 ,fontSize:18, color:'white',paddingBottom:10,alignSelf:"flex-start"}}>Today's Bookings:</Text>  
      </View>
      <ScrollView >
     
-     {Slotarray.map(({BookingStartTime,BookingEndTime,UserID}) => (
+     {Slotarray.map(({BookingStartTime,BookingEndTime,FirstName,DateOfBooking}) => (
         <View style={styles.formcontainer}>
-          <Text style={{ fontWeight:"bold", fontSize:25, color:'#9ceb4d',paddingBottom:10,alignSelf:"flex-start"}}>User ID: {UserID}</Text>
-          <Text style={{ fontWeight:"bold", paddingBottom:5 ,fontSize:20, color:'white',paddingBottom:10,alignSelf:"flex-start"}}>Timings: {BookingStartTime}-{BookingEndTime}</Text>
+          <Text style={{ fontWeight:"bold", fontSize:21, color:'#9ceb4d',paddingBottom:10,alignSelf:"flex-start"}}>Booker Name : {FirstName}</Text>
+          <Text style={{ paddingBottom:5 ,fontSize:17, color:'white',paddingBottom:10,alignSelf:"flex-start"}}>Date: {DateOfBooking.substring(0,10)}</Text>
+          <Text style={{ paddingBottom:5 ,fontSize:17, color:'white',paddingBottom:10,alignSelf:"flex-start"}}>Timings: {BookingStartTime}-{BookingEndTime}</Text>
         </View>
        ))}
      </ScrollView>

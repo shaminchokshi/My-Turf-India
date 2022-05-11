@@ -3,6 +3,7 @@ import React from 'react';
 import { StyleSheet, Text, View , ImageBackground, Button} from 'react-native';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import  AsyncStorage from '@react-native-async-storage/async-storage';
+import {ip} from "../../constants"
 
 const SplashScreen=({navigation}) => {
 
@@ -42,7 +43,7 @@ const SplashScreen=({navigation}) => {
         <View style={styles.container} >
         <ImageBackground
          source={require("../Assets/Images/blob.png")}
-         style={{width:"100%",height:"120%", position: 'absolute', top: 400, left: -100, right: 0, bottom: 0,}}
+         style={{width:"100%",height:600, position: 'absolute', top: 400, left: -100, right: 0, bottom: 0,}}
          ></ImageBackground>
          <ImageBackground
          source={require("../Assets/Images/blob.png")}

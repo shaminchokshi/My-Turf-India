@@ -4,7 +4,7 @@ import {TextInput, StyleSheet, Text, View ,Button,ImageBackground, ScrollView} f
 import  AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from 'axios';
-
+import {ip} from "../../constants"
 
 
 export default function LoginScreen({navigation,route}) {
@@ -16,7 +16,7 @@ export default function LoginScreen({navigation,route}) {
   const [Password, setPassword] = useState('');
   const [PasswordError, setPasswordError] = useState(false);
   var asyncstoragetoken;
-  const ip="192.168.68.109";
+  
 
   const submit=async()=>{
     var mailformat = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
@@ -148,6 +148,7 @@ export default function LoginScreen({navigation,route}) {
          }
         <>
          <Button 
+         marginBottom={2}
          title='Forgot Password '
         onPress={() => navigation.navigate("ForgotPasswordScreen")}
         />
@@ -206,6 +207,7 @@ const styles = StyleSheet.create({
 
     buttoncontainer:{
       width:"50%",
+      marginTop:"2.5%",
       alignSelf:"flex-end", 
       flexDirection:'row',
       backgroundColor:'#74ba29',

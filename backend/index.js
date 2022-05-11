@@ -4,12 +4,19 @@ const cors = require('cors');
 const mysql = require("mysql");
 const { response } = require('express');
 const bcrypt = require ('bcrypt');
+const Razorpay = require('razorpay');
 const {create_token,verify}=require("./token")
 
 
 const app=express()
 app.use(express.json())
 app.use(cors());
+
+var instance = new Razorpay({
+    key_id: 'rzp_test_JpSlgZfavi3Cwn',
+    key_secret: '9Z37sUwVRU3d9OGgRWVfsFvQ',
+  });
+
 
 const transporter = nodemailer.createTransport({
     service: 'Gmail',
@@ -199,7 +206,7 @@ const FirstName=req.body.firstName;
      
     const UserID = req.query.UserID;
     console.log(UserID);
-    db.query("SELECT Bookings.BookingID, Bookings.DateOfBooking , Bookings.BookingStartTime, Bookings.BookingEndTime , Turf.TurfName from Bookings INNER JOIN Turf ON Bookings.TurfID= Turf.TurfID WHERE Bookings.UserID =?",[UserID],  ( error,result) => {
+    db.query("SELECT Bookings.BookingID, DATE_FORMAT(Bookings.DateOfBooking,'%Y%m%d') , Bookings.BookingStartTime, Bookings.BookingEndTime , Turf.TurfName from Bookings INNER JOIN Turf ON Bookings.TurfID= Turf.TurfID WHERE Bookings.UserID =?",[UserID],  ( error,result) => {
         try {
             console.log(result);
         res.send(result)
@@ -257,8 +264,8 @@ const FirstName=req.body.firstName;
          try {
             TurfID=req.query.turfid;
             DateOfBooking=req.query.DateOfBooking;
-            db.query("SELECT * from Bookings where TurfID=? and DateOfBooking=?", [TurfID,DateOfBooking] ,( error,result) => {
-                
+            db.query("SELECT Bookings.BookingID, Bookings.DateOfBooking , Bookings.BookingStartTime, Bookings.BookingEndTime, user.FirstName from Bookings INNER JOIN User ON Bookings.UserID = User.UserID where Bookings.TurfID=? and Bookings.DateOfBooking=?", [TurfID,DateOfBooking] ,( error,result) => {
+                            
                 console.log(result);
                 res.send(result)
                            
@@ -303,6 +310,57 @@ app.get("/hello",verify,(req,res)=>{
         res.status(406,{error:error.message})
     }
 })
+
+
+//API to generate order id for payments for user
+app.post("/create/userorderId",verify,(req,res)=>{
+ const mtfcommission=req.body.mtfcommission;
+ 
+    var options = {
+        amount: req.body.amount,  // amount in the smallest currency unit (paise)
+        currency: "INR",
+        transfers: [
+            {
+              account: "acc_JQ1OL6Nbbn5slh",
+              amount: mtfcommission,
+              currency: "INR",
+              on_hold: 0,
+              
+            },
+            {
+            
+              account: "acc_JQ1OL6Nbbn5slh",
+              amount: req.body.amount-mtfcommission,
+              currency: "INR",
+              on_hold: 1
+            }
+          ],
+
+        receipt: req.body.receipt,
+      };
+      instance.orders.create(options, function(err, order) {
+        console.log(order);
+        res.send({orderId: order.id});
+      });
+
+})
+
+
+//API to generate order id for payments for turf owner
+app.post("/create/turfownerorderId",verify,(req,res)=>{
+    
+    
+       var options = {
+           amount: req.body.amount,  // amount in the smallest currency unit (paise)
+           currency: "INR",
+           receipt: req.body.receipt,
+         };
+         instance.orders.create(options, function(err, order) {
+           console.log(order);
+           res.send({orderId: order.id});
+         });
+   
+   })
 
 app.listen(3000,()=>{
     console.log("listening on port 3000")

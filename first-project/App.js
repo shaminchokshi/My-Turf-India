@@ -20,6 +20,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MenuProvider } from 'react-native-popup-menu';
 
 
+
 const Stack = createNativeStackNavigator();
 
 
@@ -30,7 +31,7 @@ export default function App() {
     <MenuProvider>
     <View style={styles.topcontainer}>
     </View>
-    
+
     <NavigationContainer>
     <Stack.Navigator
       initialRouteName = "SplashScreen">
@@ -91,6 +92,7 @@ export default function App() {
        name="VerifyEmailScreen"
        component={VerifyEmailScreen}
        />
+       
     </Stack.Navigator>
     </NavigationContainer>
     </MenuProvider>

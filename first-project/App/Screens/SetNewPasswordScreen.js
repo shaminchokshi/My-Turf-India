@@ -4,9 +4,10 @@ import {TextInput, StyleSheet , Text, View ,Button,ImageBackground, Alert} from 
 import  AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from 'axios';
+import {ip} from "../../constants"
 
 export default function SetNewPasswordScreen({navigation,route}) {
-    const ip="192.168.68.109"
+    
   const [Password, setPassword] = useState('');
   const [PasswordError, setPasswordError] = useState(false);
   const [ConfirmPassword, setConfirmPassword] = useState('');

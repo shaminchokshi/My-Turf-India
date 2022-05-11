@@ -3,7 +3,7 @@ import React, {useState, createRef,Component } from 'react';
 import {Alert, TextInput, StyleSheet, Text, View , ImageBackground, ScrollView, Button} from 'react-native';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from "axios";
-
+import {ip} from "../../constants"
 
 const SignupScreen=({navigation,route}) => {
   
@@ -21,7 +21,7 @@ const SignupScreen=({navigation,route}) => {
   const [PasswordError, setPasswordError] = useState(false);
   const [ConfirmPassword, setConfirmPassword] = useState('');
   const [ConfirmPasswordError, setConfirmPasswordError] = useState(false);
-  const ip="192.168.68.136";
+  
   
   const submit=async()=>{
     try {

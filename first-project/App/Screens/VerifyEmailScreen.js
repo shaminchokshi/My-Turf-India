@@ -4,9 +4,10 @@ import {TextInput, StyleSheet , Text, View ,Button,ImageBackground, Alert} from 
 import  AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from 'axios';
+import {ip} from "../../constants"
 
 export default function VerifyEmailScreen({navigation,route}) {
-     const ip="192.168.68.109"
+     
      const [OTP,setOTP]=useState("");
      const [OTPError, setOTPError] = useState(false);
      const [asyncstoragetoken,setasyncstoragetoken] =useState('');

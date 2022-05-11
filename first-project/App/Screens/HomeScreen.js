@@ -6,8 +6,8 @@ import axios from "axios";
 import  AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from "react-native-vector-icons/Entypo";
 import {Menu, MenuOptions, MenuOption, MenuTrigger,} from 'react-native-popup-menu';
+import {ip} from "../../constants"
 
-const ip="192.168.68.109";
 
 
 export default function HomeScreen({ navigation, route }) {
@@ -19,6 +19,7 @@ export default function HomeScreen({ navigation, route }) {
   const [TurfListRender,SetTurfListRender]=useState(true);
   const [MyBookingRender,SetMyBookingRender]=useState(false);
   const [asyncstoragetoken,setasyncstoragetoken] =useState('');
+  const [SearchCity, setSearchCity]=useState('');
   const nameofuser=route.params.FirstName;
   const IDofUser= route.params.UserID;
 
@@ -175,10 +176,14 @@ function deg2rad(deg) {
          <>
         <View>
         
-          <TextInput style={styles.input} placeholder='Search' />
+          <TextInput 
+          style={styles.input} 
+          placeholder='Search City' 
+          onChangeText={(value)=>setSearchCity(value)}
+        value={SearchCity}/>
         </View>
         <ScrollView style={{width:"100%",opacity:1}}>
-          {turfarray.map(({ TurfID ,TurfName, Address, Phone, PricePerHour,TurfStartTime,TurfEndTime,latitude,longitude,city }) =>city=="Ahmedabad"?(
+          {turfarray.map(({ TurfID ,TurfName, Address, Phone, PricePerHour,TurfStartTime,TurfEndTime,latitude,longitude,city }) =>city=="Ahmedabad"||SearchCity?(
            
            <View style={styles.Cards}>
            <Text style={{ fontWeight:"bold", fontSize:25, color:'#9ceb4d',paddingBottom:10}}>{TurfName}</Text>
@@ -212,6 +217,7 @@ function deg2rad(deg) {
 
        {MyBookingRender &&
        <>
+       <Text style={{ fontWeight:"bold", fontSize:25, color:'#6cb52b',paddingBottom:10}}>My Bookings:</Text>
        <ScrollView style={{width:"100%"}}>
        {UserBookingArray.map(({ TurfName,BookingID ,DateOfBooking,BookingStartTime,BookingEndTime }) =>(
            
@@ -316,10 +322,6 @@ const styles = StyleSheet.create({
   paddingBottom:10,
   paddingTop:10,
   paddingLeft:15,
-  // shadowColor: '#9ceb4d',
-  // shadowOffset: {width: -2, height: 5},
-  // shadowOpacity: 0.6,
-  // shadowRadius: 15,
   width:"100%",
 
 },

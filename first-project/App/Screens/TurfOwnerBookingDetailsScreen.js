@@ -7,8 +7,8 @@ import moment from 'moment';
 import { MultiSelect } from 'react-native-element-dropdown';
 import Icon from "react-native-vector-icons/Entypo";
 import  AsyncStorage from '@react-native-async-storage/async-storage';
+import {ip} from "../../constants"
 
-const ip="192.168.68.109";
 
 export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
   const [Slotarray, setSlotarray] = useState([]);//array of booked slots
@@ -21,6 +21,9 @@ export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
   const [selected, setSelected] = useState([]);
   const [stringdate,setstringdate]=useState('');
   const [asyncstoragetoken,setasyncstoragetoken] =useState('');
+  const [PaymentOrderID,setPaymentOrderID]=useState("");
+  const [pickervisible,setpickervisible]=useState(true);
+
 // function to get data (auth key) from the async storage 
   const GetAsyncStorageData = async()=>{
     try {
@@ -45,17 +48,40 @@ export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
      Alert.alert("Please select a timeslot for booking !!")
     }
     else{
-      navigation.navigate("PaymentScreen",
-           {
-            UserID: route.params.UserID,
-            TurfID:route.params.TurfID,
-            Turfname:route.params.TurfName,
-            DateOfBooking: stringdate,
-            BookingStartTime:selected,
-            PaymentStatus: selected.length * route.params.PricePerHour,
+
+      //api to get order id for payment by turfowner
+      const getorderid = async () => {
+      
+        
+        const GetOrderId = await axios({
+          url: `http://${ip}:3000/create/turfownerorderId`,
+          method: "post",
+          headers:{
+            Authorization: asyncstoragetoken,
+          },
+         data:{
+           amount: ( selected.length * route.params.PricePerHour * 100),
+           receipt: `${route.params.TurfName},${stringdate}`,
+           
+         }
+        });
+        setPaymentOrderID(GetOrderId.data['orderId']);
+        console.log(GetOrderId.data['orderId']);
+      };
+      getorderid();
+
+
+      // navigation.navigate("PaymentScreen",
+      //      {
+      //       UserID: route.params.UserID,
+      //       TurfID:route.params.TurfID,
+      //       Turfname:route.params.TurfName,
+      //       DateOfBooking: stringdate,
+      //       BookingStartTime:selected,
+      //       PaymentStatus: selected.length * route.params.PricePerHour,
             
 
-           })
+      //      })
     }
   }
 
@@ -97,6 +123,7 @@ export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
     getsbookedslots([year, month, day].join('-'));    
     setstringdate([year, month, day].join('-'));
     setTimeSlots(createTimeSlots(route.params.TurfStartTime, route.params.TurfEndTime));
+    setpickervisible(false);
     };
 
 
@@ -186,7 +213,17 @@ export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
             color="#9ceb4d"
             alignSelf='flex-start'
             size={30}
+            onPress={()=>setpickervisible(true)}
             ></Icon>
+            <Button
+         title='Select Date'
+         color="#9ceb4d"
+         onPress={()=>{setpickervisible(true)}}
+         />
+         
+         
+         </View>
+         {pickervisible &&
          <DateTimePicker style={styles.datepicker}
          minDate={new Date()}
          mode='date'
@@ -196,6 +233,9 @@ export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
          textColor="#ffffff"
          
          />
+         }
+          <View style={{alignSelf:'flex-start'}}>
+          <Text style={{fontWeight:"bold", paddingBottom:"2%",fontSize:15, color:'#9ceb4d'}}>Selected Date : {stringdate}</Text>
           </View>
 
           <Text style={{ fontWeight:"bold", fontSize:15, color:'#ffffff',paddingBottom:10, alignSelf:'flex-start'}}>Time Slots Already booked:</Text>
@@ -337,8 +377,8 @@ const styles = StyleSheet.create({
          fontSize:18,
          height:40,
          width:"82%",
-         borderColor: '#9ceb4d',
-         borderWidth: 3,
+        //  borderColor: '#9ceb4d',
+        //  borderWidth: 3,
         },
 
 

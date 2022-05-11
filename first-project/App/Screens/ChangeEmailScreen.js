@@ -4,9 +4,10 @@ import {TextInput, StyleSheet , Text, View ,Button,ImageBackground, Alert} from 
 import  AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from 'axios';
+import {ip} from "../../constants"
 
 export default function ChangeEmailScreen({navigation,route}) {
-    const ip="192.168.68.109"
+    
     const [Email, setEmail] = useState('');
     const [EmailError, setEmailError] = useState(false);
 
