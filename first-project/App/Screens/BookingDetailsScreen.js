@@ -1,6 +1,6 @@
-import { StatusBar } from 'expo-status-bar';
+
 import React, {useState,useEffect} from 'react';
-import { StyleSheet, Text,ScrollView, View , Button, Alert,Linking,ImageBackground,TouchableOpacity,Platform} from 'react-native';
+import { StyleSheet, Text,ScrollView, View , Button, Alert,Linking,ImageBackground,TouchableOpacity, Platform} from 'react-native';
 import axios from "axios";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
@@ -24,8 +24,8 @@ export default function BookingDetailsScreen ({navigation,route}){
   const [PaymentOrderID,setPaymentOrderID]=useState("");
   const [pickervisible,setpickervisible]=useState(false);
   var PaymentOrderIDs;
-
-
+  var BookingArray=[];
+  var TimingArray=[];
 
 // function to get data (auth key) from the async storage 
   const GetAsyncStorageData = async()=>{
@@ -51,10 +51,44 @@ export default function BookingDetailsScreen ({navigation,route}){
      Alert.alert("Please select a timeslot for booking !!")
     }
     else{
-       //api to get order id for payment by user
-      const getorderid = async () => {
       
-        
+      const addbookings=async()=>{
+
+        for (let i = 0; i < selected.length; i++){
+         const addDataToBookings=await axios({
+
+          url: `http://${ip}:3000/AddBookingDetails`,
+          method: "post",
+          headers:{
+            Authorization: asyncstoragetoken,
+          },
+         data:{
+          UserID: route.params.UserID,
+          TurfID:route.params.TurfID,
+          DateOfBooking: stringdate,
+          BookingStartTime:selected[i].substring(0,8),
+          BookingEndTime:selected[i].substring(9,17),
+          PaymentStatus: "No",
+           
+         }
+
+         });
+         console.log(addDataToBookings.data);
+         if(addDataToBookings.data=="error"){
+          var result= arrayRemove(selected, selected[i]);
+          console.log(result);
+          setSelected(result);
+          console.log(selected);
+          Alert.alert(`Time Slot ${selected[i]} has already been booked for the chosen date`);
+         
+         }
+         else{
+          BookingArray.push(addDataToBookings.data["insertId"]);
+          TimingArray.push(selected[i]);
+         }
+         
+        }
+
         const GetOrderId = await axios({
           url: `http://${ip}:3000/create/userorderId`,
           method: "post",
@@ -62,30 +96,75 @@ export default function BookingDetailsScreen ({navigation,route}){
             Authorization: asyncstoragetoken,
           },
          data:{
-           amount: ( selected.length * route.params.PricePerHour * 100),
+           amount: ( BookingArray.length * route.params.PricePerHour * 100),
            receipt: `${route.params.TurfName},${stringdate}`,
-           mtfcommission:(selected.length*100*100),
+           mtfcommission:(BookingArray.length*100*100),
          }
         });
         PaymentOrderIDs =GetOrderId.data.orderId;
         console.log(PaymentOrderIDs);
+         
+
+        setTimeout(function() { navigatetopaymentscreen(); } , 1000);
+
+
+        
        
-      };
-      await getorderid();
+      }
+      await addbookings();
+
+       //api to get order id for payment by user
+      //  const getorderid = async () => {
+      
+        
+      //   const GetOrderId = await axios({
+      //     url: `http://${ip}:3000/create/userorderId`,
+      //     method: "post",
+      //     headers:{
+      //       Authorization: asyncstoragetoken,
+      //     },
+      //    data:{
+      //      amount: ( selected.length * route.params.PricePerHour * 100),
+      //      receipt: `${route.params.TurfName},${stringdate}`,
+      //      mtfcommission:(selected.length*100*100),
+      //    }
+      //   });
+      //   PaymentOrderIDs =GetOrderId.data.orderId;
+      //   console.log(PaymentOrderIDs);
+       
+      // };
+      //  await getorderid();
+      
+
+     console.log(BookingArray);
+
+     function arrayRemove(arr, value) { 
     
-    
-    
-      navigation.navigate("PaymentScreen",
+      return arr.filter(function(ele){ 
+          return ele != value; 
+      });
+  }
+
+  
+
+      //Linking.openURL(`https://mticheckout.000webhostapp.com/?orderid=${PaymentOrderIDs}`);
+      const navigatetopaymentscreen = async() => {
+       navigation.navigate("PaymentScreen",
            {
             UserID: route.params.UserID,
             TurfID:route.params.TurfID,
             Turfname:route.params.TurfName,
             DateOfBooking: stringdate,
             BookingStartTime:selected,
-            PaymentStatus: selected.length * route.params.PricePerHour,
+            PaymentStatus: BookingArray.length * route.params.PricePerHour,
             orderid:PaymentOrderIDs,
-
+            BookingArray:BookingArray,
+            TimingArray:TimingArray,
            });
+            setSelected([]);
+          }
+      
+      
     }
   }
 
@@ -115,9 +194,9 @@ export default function BookingDetailsScreen ({navigation,route}){
   const onChange = async (event, selectedDate) => {
     const currentDate = selectedDate || BookingDate;
     
-    setBookingDate(currentDate);
+    setBookingDate(selectedDate);
     
-    var d = new Date(currentDate),
+    var d = new Date(selectedDate),
         month = '' + (d.getMonth() + 1),
         day = '' + d.getDate(),
         year = d.getFullYear();
@@ -127,7 +206,7 @@ export default function BookingDetailsScreen ({navigation,route}){
     if (day.length < 2) 
         day = '0' + day;
     setSelected([]);
-    getsbookedslots([year, month, day].join('-'));    
+    getsbookedslots([year, month, day].join('-'));  
     setstringdate([year, month, day].join('-'));
     setTimeSlots(createTimeSlots(route.params.TurfStartTime, route.params.TurfEndTime));
     setpickervisible(false);
@@ -138,7 +217,7 @@ export default function BookingDetailsScreen ({navigation,route}){
 //API to get all the booked slots of a turf on a  particular date details
   function getsbookedslots(Entrydate){
     const slotmenu = async () => {
-      
+   
       //API to get all the booked slots of a turf on a  particular date details
       const GetAlreadyBookedSlots = await axios({
         url: `http://${ip}:3000/GetAlreadyBookedSlots?turfid=${IDofTurf}&DateOfBooking=${Entrydate}`,
@@ -152,17 +231,27 @@ export default function BookingDetailsScreen ({navigation,route}){
      slotmenu();
   }
   
-  
+ const goback=()=>{
+  navigation.goBack()
+ }
   
 
   return(
         <>
         <View style={styles.container} >
+         
         <ImageBackground
          source={require("../Assets/Images/blob.png")}
          style={{width:"100%",height:770, position: 'absolute', top: -310, left: 0, right: 0, bottom: 0,}}
          ></ImageBackground>
-         
+          <View style={styles.backbutton}>
+          <Icon
+          name='chevron-left'
+          color="#ffffff"
+          size={35}
+          onPress={()=>goback()}
+          ></Icon>
+          </View>
          <ScrollView style={{width:"100%"}}>
            
          <View style={styles.formcontainer} >
@@ -252,7 +341,7 @@ export default function BookingDetailsScreen ({navigation,route}){
           <Text style={{ fontWeight:"bold", fontSize:15, color:'#ffffff',paddingBottom:10, alignSelf:'flex-start'}}>Time Slots Already booked:</Text>
           
          { Slotarray.length==[] ?<View style = {styles.showtext} >
-            <Text>None</Text>
+            <Text >None</Text>
             
            </View>:Slotarray.map(({BookingStartTime,BookingEndTime }) => (
             
@@ -268,6 +357,7 @@ export default function BookingDetailsScreen ({navigation,route}){
            
            <View>
           <MultiSelect
+          title="slotselect"
           style={styles.input}
           data={availableslots}
           labelField="label"
@@ -357,7 +447,6 @@ const styles = StyleSheet.create({
       width:"85%",
       borderRadius: 20,
       marginBottom:30,
-      marginTop:10,
       alignItems:'center',
       opacity:0.9,
     },
@@ -407,19 +496,43 @@ const styles = StyleSheet.create({
       alignSelf:"flex-start", 
       flexDirection:'row'
   },
+
+  backbutton:{
+    alignSelf:"flex-start",
+    backgroundColor:"#469c2c",
+    borderRadius:17,
+    marginLeft:"4%",
+    marginTop:"2%",
+    marginBottom:2,
+
+
+  },
   
   buttoncontainer:{
-    width:"45%",
+    width:"50%",
+    marginTop:"2.5%",
     alignSelf:"flex-end", 
     flexDirection:'row',
-    backgroundColor:'#74ba29',
+    //backgroundColor:'#74ba29',
     borderBottomRightRadius:20,
     borderTopLeftRadius:20,
     justifyContent:'center',
     shadowColor: '#e5eb34',
     shadowOffset: {width: -5, height: -5},
     shadowOpacity: 0.7,
-    shadowRadius: 35 
+    shadowRadius: 35 ,
+    ...Platform.select({
+      ios: {
+        backgroundColor: '#74ba29'
+      },
+      android: {
+        backgroundColor: '#212121',
+        paddingBottom:"2%"
+      },
+      default: {
+        backgroundColor: '#212121'
+      }
+    })
   },
 
   selectedStyle: {

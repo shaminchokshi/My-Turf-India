@@ -1,6 +1,6 @@
-import { StatusBar } from 'expo-status-bar';
+//import { StatusBar } from 'expo-status-bar';
 import React, {useState} from 'react';
-import {TextInput, StyleSheet, Text, View ,Button,ImageBackground, ScrollView} from 'react-native';
+import {TextInput, StyleSheet, Text, View ,Button,ImageBackground, ScrollView,Platform} from 'react-native';
 import  AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from 'axios';
@@ -124,6 +124,7 @@ export default function LoginScreen({navigation,route}) {
          <TextInput style={styles.input}
         placeholder='Email'
         autoCapitalize='none'
+        placeholderTextColor="#777777"
         onChangeText={(value)=>setEmail(value)}
         value={Email}
          />
@@ -137,6 +138,7 @@ export default function LoginScreen({navigation,route}) {
          <TextInput style={styles.input}
         placeholder='Password'
         secureTextEntry={true}
+        placeholderTextColor="#777777"
         onChangeText={(value)=>setPassword(value)}
         value={Password}
          />
@@ -210,14 +212,26 @@ const styles = StyleSheet.create({
       marginTop:"2.5%",
       alignSelf:"flex-end", 
       flexDirection:'row',
-      backgroundColor:'#74ba29',
+      //backgroundColor:'#74ba29',
       borderBottomRightRadius:20,
       borderTopLeftRadius:20,
       justifyContent:'center',
       shadowColor: '#e5eb34',
       shadowOffset: {width: -5, height: -5},
       shadowOpacity: 0.7,
-      shadowRadius: 35 
+      shadowRadius: 35 ,
+      ...Platform.select({
+        ios: {
+          backgroundColor: '#74ba29'
+        },
+        android: {
+          backgroundColor: '#212121',
+          paddingBottom:"2%"
+        },
+        default: {
+          backgroundColor: '#212121'
+        }
+      })
     },
     
   });

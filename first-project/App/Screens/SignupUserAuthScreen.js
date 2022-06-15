@@ -1,4 +1,4 @@
-import { StatusBar } from 'expo-status-bar';
+//import { StatusBar } from 'expo-status-bar';
 import React, {useState, createRef,Component } from 'react';
 import { StyleSheet, Text, TextInput, View , Image, Button, Alert} from 'react-native';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -69,6 +69,7 @@ export default function SignupUserAuthScreen ({navigation,route}){
           title='OTP'
           keyboardType='numeric'
           returnKeyType='done'
+          placeholderTextColor="#777777"
           onChangeText={(value)=>setOTP(value)}
           value={OTP}
          />

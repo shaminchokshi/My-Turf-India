@@ -1,6 +1,6 @@
-import { StatusBar } from 'expo-status-bar';
+//import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View ,ScrollView, TextInput, Image, AppRegistry} from 'react-native';
+import { StyleSheet, Text, View ,ScrollView, TextInput, Image} from 'react-native';
 import SplashScreen from './App/Screens/SplashScreen';
 import LoginScreen from './App/Screens/LoginScreen';
 import HomeScreen from './App/Screens/HomeScreen';
@@ -34,8 +34,11 @@ export default function App() {
 
     <NavigationContainer>
     <Stack.Navigator
-      initialRouteName = "SplashScreen">
-
+      initialRouteName = "SplashScreen"
+       screenOptions={{
+        headerShown: false
+       }}
+     >
       <Stack.Screen
        name="SplashScreen"
        component={SplashScreen}
@@ -110,8 +113,8 @@ const styles = StyleSheet.create({
   },
   topcontainer:{
     backgroundColor:'#141414',
-    height:35,
-
+    height:"4%",
+   
   },
 
   input: {

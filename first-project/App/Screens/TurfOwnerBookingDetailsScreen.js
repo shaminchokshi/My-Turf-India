@@ -1,6 +1,6 @@
-import { StatusBar } from 'expo-status-bar';
+//import { StatusBar } from 'expo-status-bar';
 import React, {useState, createRef, Component} from 'react';
-import { StyleSheet, Text,ScrollView, View , Button, Alert,Linking,ImageBackground,TouchableOpacity} from 'react-native';
+import { StyleSheet, Text,ScrollView, View , Button, Alert,Linking,ImageBackground,TouchableOpacity,Platform} from 'react-native';
 import axios from "axios";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
@@ -23,6 +23,9 @@ export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
   const [asyncstoragetoken,setasyncstoragetoken] =useState('');
   const [PaymentOrderID,setPaymentOrderID]=useState("");
   const [pickervisible,setpickervisible]=useState(true);
+  var PaymentOrderIDs;
+  var BookingArray=[];
+  var TimingArray=[];
 
 // function to get data (auth key) from the async storage 
   const GetAsyncStorageData = async()=>{
@@ -50,8 +53,62 @@ export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
     else{
 
       //api to get order id for payment by turfowner
-      const getorderid = async () => {
+      // const getorderid = async () => {
       
+        
+      //   const GetOrderId = await axios({
+      //     url: `http://${ip}:3000/create/turfownerorderId`,
+      //     method: "post",
+      //     headers:{
+      //       Authorization: asyncstoragetoken,
+      //     },
+      //    data:{
+      //      amount: ( selected.length * route.params.PricePerHour * 100),
+      //      receipt: `${route.params.TurfName},${stringdate}`,
+           
+      //    }
+      //   });
+      //  PaymentOrderIDs=GetOrderId.data['orderId'];
+      //   console.log(GetOrderId.data['orderId']);
+      // };
+      // await getorderid();
+
+
+      const addbookings=async()=>{
+
+        for (let i = 0; i < selected.length; i++){
+         const addDataToBookings=await axios({
+
+          url: `http://${ip}:3000/AddBookingDetails`,
+          method: "post",
+          headers:{
+            Authorization: asyncstoragetoken,
+          },
+         data:{
+          UserID: route.params.UserID,
+          TurfID:route.params.TurfID,
+          DateOfBooking: stringdate,
+          BookingStartTime:selected[i].substring(0,8),
+          BookingEndTime:selected[i].substring(9,17),
+          PaymentStatus: "No",
+           
+         }
+
+         });
+         console.log(addDataToBookings.data);
+         if(addDataToBookings.data=="error"){
+          var result= arrayRemove(selected, selected[i]);
+          console.log(result);
+          setSelected(result);
+          console.log(selected);
+          Alert.alert(`Time Slot ${selected[i]} has already been booked for the chosen date`);
+         
+         }
+         else{
+          BookingArray.push(addDataToBookings.data["insertId"]);
+          TimingArray.push(selected[i]);
+         }
+        }
         
         const GetOrderId = await axios({
           url: `http://${ip}:3000/create/turfownerorderId`,
@@ -60,28 +117,43 @@ export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
             Authorization: asyncstoragetoken,
           },
          data:{
-           amount: ( selected.length * route.params.PricePerHour * 100),
+           amount: ( BookingArray.length * route.params.PricePerHour * 100),
            receipt: `${route.params.TurfName},${stringdate}`,
            
          }
         });
-        setPaymentOrderID(GetOrderId.data['orderId']);
+       PaymentOrderIDs=GetOrderId.data['orderId'];
         console.log(GetOrderId.data['orderId']);
-      };
-      getorderid();
+
+        setTimeout(function() { navigatetopaymentscreen(); } , 1000);
+
+      }
+      await addbookings();
+
+      function arrayRemove(arr, value) { 
+    
+        return arr.filter(function(ele){ 
+            return ele != value; 
+        });
+    }
 
 
-      // navigation.navigate("PaymentScreen",
-      //      {
-      //       UserID: route.params.UserID,
-      //       TurfID:route.params.TurfID,
-      //       Turfname:route.params.TurfName,
-      //       DateOfBooking: stringdate,
-      //       BookingStartTime:selected,
-      //       PaymentStatus: selected.length * route.params.PricePerHour,
-            
-
-      //      })
+     // Linking.openURL(`https://mticheckout.000webhostapp.com/?orderid=${PaymentOrderIDs}`);
+     const navigatetopaymentscreen = async() => {
+      navigation.navigate("PaymentScreen",
+          {
+           UserID: route.params.UserID,
+           TurfID:route.params.TurfID,
+           Turfname:route.params.TurfName,
+           DateOfBooking: stringdate,
+           BookingStartTime:selected,
+           PaymentStatus: BookingArray.length * route.params.PricePerHour,
+           orderid:PaymentOrderIDs,
+           BookingArray:BookingArray,
+           TimingArray:TimingArray,
+          });
+           setSelected([]);
+         }
     }
   }
 
@@ -145,7 +217,9 @@ export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
      slotmenu();
   }
   
-  
+  const goback=async()=>{
+    navigation.goBack()
+   }
   
 
   return(
@@ -155,7 +229,14 @@ export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
          source={require("../Assets/Images/blob.png")}
          style={{width:"100%",height:770, position: 'absolute', top: -310, left: 0, right: 0, bottom: 0,}}
          ></ImageBackground>
-
+         <View style={styles.backbutton}>
+          <Icon
+          name='chevron-left'
+          color="#ffffff"
+          size={35}
+          onPress={()=>goback()}
+          ></Icon>
+          </View>
          <ScrollView style={{width:"100%"}}>
          <View style={styles.formcontainer} >
          <ImageBackground
@@ -396,7 +477,18 @@ const styles = StyleSheet.create({
       alignSelf:"flex-start", 
       flexDirection:'row'
   },
-  
+
+
+  backbutton:{
+    alignSelf:"flex-start",
+    backgroundColor:"#469c2c",
+    borderRadius:17,
+    marginLeft:"4%",
+    marginTop:"2%",
+    marginBottom:2,
+
+
+  },
   selectedStyle: {
     
     flexDirection: 'row',
@@ -419,17 +511,30 @@ const styles = StyleSheet.create({
   },
 
   buttoncontainer:{
-    width:"45%",
+    width:"50%",
+    marginTop:"2.5%",
     alignSelf:"flex-end", 
     flexDirection:'row',
-    backgroundColor:'#74ba29',
+    //backgroundColor:'#74ba29',
     borderBottomRightRadius:20,
     borderTopLeftRadius:20,
     justifyContent:'center',
     shadowColor: '#e5eb34',
     shadowOffset: {width: -5, height: -5},
     shadowOpacity: 0.7,
-    shadowRadius: 35 
+    shadowRadius: 35 ,
+    ...Platform.select({
+      ios: {
+        backgroundColor: '#74ba29'
+      },
+      android: {
+        backgroundColor: '#212121',
+        paddingBottom:"2%"
+      },
+      default: {
+        backgroundColor: '#212121'
+      }
+    })
   },
 
  map: {

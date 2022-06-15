@@ -1,6 +1,6 @@
-import { StatusBar } from "expo-status-bar";
+//import { StatusBar } from "expo-status-bar";
 import React, { useState, createRef, Component, useEffect } from "react";
-import {TextInput, StyleSheet, Text,View,Image,ScrollView,Button,TouchableOpacity} from "react-native";
+import {TextInput, StyleSheet, Text,View,Image,ScrollView,Button,TouchableOpacity, Platform} from "react-native";
 import { Navigate, Route } from "react-router-native";
 import axios from "axios";
 import  AsyncStorage from '@react-native-async-storage/async-storage';
@@ -198,8 +198,7 @@ return(
     
      {Slotarray.map(({BookingStartTime,BookingEndTime,FirstName,DateOfBooking}) => (
         <View style={styles.formcontainer}>
-          <Text style={{ fontWeight:"bold", fontSize:21, color:'#9ceb4d',paddingBottom:10,alignSelf:"flex-start"}}>Booker Name : {FirstName}</Text>
-          <Text style={{ paddingBottom:5 ,fontSize:17, color:'white',paddingBottom:10,alignSelf:"flex-start"}}>Date: {DateOfBooking.substring(0,10)}</Text>
+          
           <Text style={{ paddingBottom:5 ,fontSize:17, color:'white',paddingBottom:10,alignSelf:"flex-start"}}>Timings: {BookingStartTime}-{BookingEndTime}</Text>
         </View>
        ))}
@@ -279,16 +278,30 @@ const styles = StyleSheet.create({
     
       buttoncontainer:{
         width:"50%",
+        marginTop:"2.5%",
         alignSelf:"flex-end", 
         flexDirection:'row',
-        backgroundColor:'#74ba29',
+        //backgroundColor:'#74ba29',
         borderBottomRightRadius:20,
         borderTopLeftRadius:20,
         justifyContent:'center',
         shadowColor: '#e5eb34',
         shadowOffset: {width: -5, height: -5},
         shadowOpacity: 0.7,
-        shadowRadius: 35 
+        shadowRadius: 35 ,
+        ...Platform.select({
+          ios: {
+            backgroundColor: '#74ba29'
+          },
+          android: {
+            backgroundColor: '#212121',
+            paddingBottom:"2%",
+            paddingRight:'4%'
+          },
+          default: {
+            backgroundColor: '#212121'
+          }
+        })
       },
 
     formcontainer: {
@@ -364,17 +377,20 @@ const styles = StyleSheet.create({
       },
      
       navbar: {
+      
+      alignItems:"center",
       justifyContent:"center",
       flexDirection:'row',
-      backgroundColor:'#9ceb4d',
+      backgroundColor:'#141414',
+      borderWidth:2,
+      borderTopColor:'#86c452',
+      borderColor:'#141414',
       borderRadius:15,
-      padding:"1%",
-      height:"10%",
-      shadowColor: '#9ceb4d',
-      shadowOffset: {width: -2, height: 5},
-      shadowOpacity: 0.6,
-      shadowRadius: 15,
-      width:"100%"
+      paddingBottom:10,
+      paddingTop:"2%",
+      paddingBottom:"4%",
+      paddingLeft:15,
+      width:"100%",
 
     },
 

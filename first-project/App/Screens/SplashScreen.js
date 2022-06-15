@@ -1,4 +1,4 @@
-import { StatusBar } from 'expo-status-bar';
+//import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, Text, View , ImageBackground, Button} from 'react-native';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";

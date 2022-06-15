@@ -1,6 +1,6 @@
-import { StatusBar } from "expo-status-bar";
+//mport { StatusBar } from "expo-status-bar";
 import React, { useState, createRef, Component, useEffect } from "react";
-import {TextInput, StyleSheet, Text,View,Image,ScrollView,Button,ImageBackground} from "react-native";
+import {TextInput, StyleSheet, Text,View,Image,ScrollView,Button,ImageBackground,Platform} from "react-native";
 import { Navigate, Route } from "react-router-native";
 import axios from "axios";
 import  AsyncStorage from '@react-native-async-storage/async-storage';
@@ -179,6 +179,7 @@ function deg2rad(deg) {
           <TextInput 
           style={styles.input} 
           placeholder='Search City' 
+          placeholderTextColor="#777777"
           onChangeText={(value)=>setSearchCity(value)}
         value={SearchCity}/>
         </View>
@@ -206,7 +207,7 @@ function deg2rad(deg) {
             latitude:latitude,
             longitude:longitude,
 
-           })} color={'#cbff1f'}/>
+           })} color={'#94f56e'}/>
            
            </View>
         </View>
@@ -327,18 +328,31 @@ const styles = StyleSheet.create({
 },
 
 
- buttoncontainer:{
+buttoncontainer:{
   width:"50%",
+  marginTop:"2.5%",
   alignSelf:"flex-end", 
   flexDirection:'row',
-  backgroundColor:'#74ba29',
+  //backgroundColor:'#74ba29',
   borderBottomRightRadius:20,
   borderTopLeftRadius:20,
   justifyContent:'center',
   shadowColor: '#e5eb34',
   shadowOffset: {width: -5, height: -5},
   shadowOpacity: 0.7,
-  shadowRadius: 35 
+  shadowRadius: 35 ,
+  ...Platform.select({
+    ios: {
+      backgroundColor: '#74ba29'
+    },
+    android: {
+      backgroundColor: '#212121',
+      paddingBottom:"2%"
+    },
+    default: {
+      backgroundColor: '#212121'
+    }
+  })
 },
 
 iconmenu:{

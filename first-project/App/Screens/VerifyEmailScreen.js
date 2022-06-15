@@ -1,4 +1,4 @@
-import { StatusBar } from 'expo-status-bar';
+//import { StatusBar } from 'expo-status-bar';
 import React, {useState} from 'react';
 import {TextInput, StyleSheet , Text, View ,Button,ImageBackground, Alert} from 'react-native';
 import  AsyncStorage from '@react-native-async-storage/async-storage';
@@ -38,9 +38,9 @@ export default function VerifyEmailScreen({navigation,route}) {
               UserID: route.params.UserID,
               
             },
-            headers: {
-                Authorization: asyncstoragetoken,
-             }
+            headers:{
+              Authorization: asyncstoragetoken,
+            }
           })
          console.log(EmailUpdate.data)
          Alert.alert("Email updated");
@@ -81,6 +81,9 @@ export default function VerifyEmailScreen({navigation,route}) {
 
     }
 
+    const goback=()=>{
+      navigation.goBack()
+     }
 
     return(
         <>
@@ -91,6 +94,14 @@ export default function VerifyEmailScreen({navigation,route}) {
          source={require("../Assets/Images/blob.png")}
          style={{width:"100%",height:900, position: 'absolute', top: -310, left: 0, right: 0, bottom: 0,}}
          ></ImageBackground>
+         <View style={styles.backbutton}>
+          <Icon
+          name='chevron-left'
+          color="#ffffff"
+          size={35}
+          onPress={()=>goback()}
+          ></Icon>
+          </View>
         <View>
         <Icon name="soccer-field" color="#3a7a25" size={70}></Icon>
         </View>
@@ -105,6 +116,7 @@ export default function VerifyEmailScreen({navigation,route}) {
            placeholder='OTP'
            keyboardType='numeric'
            autoCapitalize='none'
+           placeholderTextColor="#777777"
            returnKeyType='done'
            onChangeText={(value)=>setOTP(value)}
            value={OTP}
@@ -148,6 +160,17 @@ const styles = StyleSheet.create({
         topcontainer:{
           backgroundColor:'#141414',
           height: 45,
+      
+        },
+
+        backbutton:{
+          alignSelf:"flex-start",
+          backgroundColor:"#469c2c",
+          borderRadius:17,
+          marginLeft:"4%",
+          marginTop:"2%",
+          marginBottom:2,
+      
       
         },
       

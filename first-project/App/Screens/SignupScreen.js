@@ -1,6 +1,6 @@
-import { StatusBar } from 'expo-status-bar';
+//import { StatusBar } from 'expo-status-bar';
 import React, {useState, createRef,Component } from 'react';
-import {Alert, TextInput, StyleSheet, Text, View , ImageBackground, ScrollView, Button} from 'react-native';
+import {Alert, TextInput, StyleSheet, Text, View , ImageBackground, ScrollView, Button, Platform} from 'react-native';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from "axios";
 import {ip} from "../../constants"
@@ -119,6 +119,10 @@ const SignupScreen=({navigation,route}) => {
     
   }
 
+  const goback=()=>{
+    navigation.goBack()
+   }
+
   return(
         <>
         <View style={styles.container}>
@@ -126,11 +130,19 @@ const SignupScreen=({navigation,route}) => {
          source={require("../Assets/Images/blob.png")}
          style={{width:"100%",height:900, position: 'absolute', top: -310, left: 0, right: 0, bottom: 0,}}
          ></ImageBackground>
+         <View style={styles.backbutton}>
+          <Icon
+          name='chevron-left'
+          color="#ffffff"
+          size={35}
+          onPress={()=>goback()}
+          ></Icon>
+          </View>
         <View>
-        <Icon name="soccer-field" color="#3a7a25" size="70"></Icon>
+        <Icon name="soccer-field" color="#3a7a25" size={70}></Icon>
         </View>
         <View>
-        <Text style={{fontWeight:"bold",paddingLeft:20, paddingBottom:10, fontSize:25, color:'#3a7a25'}}>{"My Turf India"}</Text>
+        <Text style={{fontWeight:"bold",paddingLeft:"2%", paddingBottom:"2%", fontSize:35, color:'#3a7a25'}}>{"My Turf India"}</Text>
      
         </View>
         
@@ -143,6 +155,7 @@ const SignupScreen=({navigation,route}) => {
         <TextInput style={styles.input}
         placeholder='First Name'
         title='First Name'
+        placeholderTextColor="#777777"
         onChangeText={(value)=>setFirstName(value)}
         value={FirstName}
          />
@@ -156,6 +169,7 @@ const SignupScreen=({navigation,route}) => {
          <TextInput style={styles.input}
         placeholder='Last Name'
         title='Last Name'
+        placeholderTextColor="#777777"
         onChangeText={(value)=>setLastName(value)}
         value={LastName}
          />
@@ -163,6 +177,7 @@ const SignupScreen=({navigation,route}) => {
         placeholder='Mobile number'
         keyboardType="numeric"
         title="MobileNo."
+        placeholderTextColor="#777777"
         returnKeyType='done'
         onChangeText={(value)=>setMobileno(value)}
         value={Mobileno}
@@ -177,6 +192,7 @@ const SignupScreen=({navigation,route}) => {
          <TextInput style={styles.input}
         placeholder='Email'
         title="EmailID"
+        placeholderTextColor="#777777"
         onChangeText={(value)=>setEmail(value)}
         value={Email}
         
@@ -190,6 +206,7 @@ const SignupScreen=({navigation,route}) => {
         placeholder='Password'
         title="Password"
         secureTextEntry={true}
+        placeholderTextColor="#777777"
         onChangeText={(value)=>setPassword(value)}
         value={Password}
          />
@@ -205,6 +222,7 @@ const SignupScreen=({navigation,route}) => {
         title="Confirm Password"
         secureTextEntry={true}
         onChangeText={(value)=>setConfirmPassword(value)}
+        placeholderTextColor="#777777"
         value={ConfirmPassword}
          />
 
@@ -255,6 +273,18 @@ const styles = StyleSheet.create({
       height: 45,
   
     },
+
+
+    backbutton:{
+      alignSelf:"flex-start",
+      backgroundColor:"#469c2c",
+      borderRadius:17,
+      marginLeft:"4%",
+      marginTop:"2%",
+      marginBottom:2,
+  
+  
+    },
   
     input: {
       alignSelf:"center",
@@ -269,17 +299,30 @@ const styles = StyleSheet.create({
     },
 
     buttoncontainer:{
-      width:150,
+      width:"50%",
+      marginTop:"2.5%",
       alignSelf:"flex-end", 
       flexDirection:'row',
-      backgroundColor:'#74ba29',
+      //backgroundColor:'#74ba29',
       borderBottomRightRadius:20,
       borderTopLeftRadius:20,
       justifyContent:'center',
       shadowColor: '#e5eb34',
       shadowOffset: {width: -5, height: -5},
       shadowOpacity: 0.7,
-      shadowRadius: 35 
+      shadowRadius: 35 ,
+      ...Platform.select({
+        ios: {
+          backgroundColor: '#74ba29'
+        },
+        android: {
+          backgroundColor: '#212121',
+          paddingBottom:"2%"
+        },
+        default: {
+          backgroundColor: '#212121'
+        }
+      })
     },
     
   });
