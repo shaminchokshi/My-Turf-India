@@ -3,7 +3,8 @@ import React, {useState, createRef,Component } from 'react';
 import {Alert, TextInput, StyleSheet, Text, View , ImageBackground, ScrollView, Button, Platform} from 'react-native';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from "axios";
-import {ip} from "../../constants"
+import {ip,appname} from "../../constants";
+
 
 const SignupScreen=({navigation,route}) => {
   
@@ -75,7 +76,7 @@ const SignupScreen=({navigation,route}) => {
         
         
           const resp = await axios({
-            url:`http://${ip}:3000`,
+            url:`${ip}`,
             method:"post",
             data:{
               email:Email,
@@ -86,7 +87,7 @@ const SignupScreen=({navigation,route}) => {
          
          //Calling API to add entry in User table after signup
           const SignUp = await axios({
-            url:`http://${ip}:3000/SignUp`,
+            url:`${ip}/SignUp`,
             method:"post",
             data:{
               firstName:FirstName,
@@ -142,7 +143,7 @@ const SignupScreen=({navigation,route}) => {
         <Icon name="soccer-field" color="#3a7a25" size={70}></Icon>
         </View>
         <View>
-        <Text style={{fontWeight:"bold",paddingLeft:"2%", paddingBottom:"2%", fontSize:35, color:'#3a7a25'}}>{"My Turf India"}</Text>
+        <Text style={{fontWeight:"bold",paddingLeft:"2%", paddingBottom:"2%", fontSize:35, color:'#3a7a25'}}>{appname}</Text>
      
         </View>
         

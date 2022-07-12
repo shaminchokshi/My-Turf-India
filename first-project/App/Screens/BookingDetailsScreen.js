@@ -1,6 +1,6 @@
 
 import React, {useState,useEffect} from 'react';
-import { StyleSheet, Text,ScrollView, View , Button, Alert,Linking,ImageBackground,TouchableOpacity, Platform} from 'react-native';
+import { StyleSheet, Text,ScrollView, View , Button, Alert,Linking,ImageBackground,TouchableOpacity, Platform, ActivityIndicator} from 'react-native';
 import axios from "axios";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
@@ -8,7 +8,7 @@ import { MultiSelect } from 'react-native-element-dropdown';
 import Icon from "react-native-vector-icons/Entypo";
 import  AsyncStorage from '@react-native-async-storage/async-storage';
 import {ip} from "../../constants";
-
+import { MaterialCommunityIcons } from 'react-native-vector-icons';
 
 export default function BookingDetailsScreen ({navigation,route}){
   const [Slotarray, setSlotarray] = useState([]);//array of booked slots
@@ -23,6 +23,7 @@ export default function BookingDetailsScreen ({navigation,route}){
   const [asyncstoragetoken,setasyncstoragetoken] =useState('');
   const [PaymentOrderID,setPaymentOrderID]=useState("");
   const [pickervisible,setpickervisible]=useState(false);
+  const [loader,setloader]=useState(false);
   var PaymentOrderIDs;
   var BookingArray=[];
   var TimingArray=[];
@@ -51,13 +52,13 @@ export default function BookingDetailsScreen ({navigation,route}){
      Alert.alert("Please select a timeslot for booking !!")
     }
     else{
-      
+      setloader(true);
       const addbookings=async()=>{
 
         for (let i = 0; i < selected.length; i++){
          const addDataToBookings=await axios({
 
-          url: `http://${ip}:3000/AddBookingDetails`,
+          url: `${ip}/AddBookingDetails`,
           method: "post",
           headers:{
             Authorization: asyncstoragetoken,
@@ -90,7 +91,7 @@ export default function BookingDetailsScreen ({navigation,route}){
         }
 
         const GetOrderId = await axios({
-          url: `http://${ip}:3000/create/userorderId`,
+          url: `${ip}/create/userorderId`,
           method: "post",
           headers:{
             Authorization: asyncstoragetoken,
@@ -99,6 +100,7 @@ export default function BookingDetailsScreen ({navigation,route}){
            amount: ( BookingArray.length * route.params.PricePerHour * 100),
            receipt: `${route.params.TurfName},${stringdate}`,
            mtfcommission:(BookingArray.length*100*100),
+           RazorpayAccount: route.params.RazorpayAccount 
          }
         });
         PaymentOrderIDs =GetOrderId.data.orderId;
@@ -118,7 +120,7 @@ export default function BookingDetailsScreen ({navigation,route}){
       
         
       //   const GetOrderId = await axios({
-      //     url: `http://${ip}:3000/create/userorderId`,
+      //     url: `${ip}/create/userorderId`,
       //     method: "post",
       //     headers:{
       //       Authorization: asyncstoragetoken,
@@ -147,8 +149,9 @@ export default function BookingDetailsScreen ({navigation,route}){
 
   
 
-      //Linking.openURL(`https://mticheckout.000webhostapp.com/?orderid=${PaymentOrderIDs}`);
+      
       const navigatetopaymentscreen = async() => {
+        
        navigation.navigate("PaymentScreen",
            {
             UserID: route.params.UserID,
@@ -162,6 +165,7 @@ export default function BookingDetailsScreen ({navigation,route}){
             TimingArray:TimingArray,
            });
             setSelected([]);
+            setloader(false);
           }
       
       
@@ -184,6 +188,7 @@ export default function BookingDetailsScreen ({navigation,route}){
      
     }
     return timeslotarr;
+   
   }
 
   
@@ -220,7 +225,7 @@ export default function BookingDetailsScreen ({navigation,route}){
    
       //API to get all the booked slots of a turf on a  particular date details
       const GetAlreadyBookedSlots = await axios({
-        url: `http://${ip}:3000/GetAlreadyBookedSlots?turfid=${IDofTurf}&DateOfBooking=${Entrydate}`,
+        url: `${ip}/GetAlreadyBookedSlots?turfid=${IDofTurf}&DateOfBooking=${Entrydate}`,
         method: "get",
         headers: {
           Authorization: asyncstoragetoken,
@@ -239,7 +244,7 @@ export default function BookingDetailsScreen ({navigation,route}){
   return(
         <>
         <View style={styles.container} >
-         
+       
         <ImageBackground
          source={require("../Assets/Images/blob.png")}
          style={{width:"100%",height:770, position: 'absolute', top: -310, left: 0, right: 0, bottom: 0,}}
@@ -252,8 +257,11 @@ export default function BookingDetailsScreen ({navigation,route}){
           onPress={()=>goback()}
           ></Icon>
           </View>
+          
+          
+
          <ScrollView style={{width:"100%"}}>
-           
+         
          <View style={styles.formcontainer} >
          <ImageBackground
          source={require("../Assets/Images/soccershoes.png")}
@@ -301,6 +309,16 @@ export default function BookingDetailsScreen ({navigation,route}){
           />
           </View>
          <Text style={{ paddingLeft:10 ,fontSize:20, color:'#9ceb4d',paddingBottom:10,textAlign:'right',alignSelf:'flex-start'}}> ₹ {route.params.PricePerHour}/Hr</Text>
+
+         { <View style={styles.sportlist}>
+           {JSON.parse(route.params.sport).map((sports)=>(
+           <View style={styles.iconcontainer}>
+           <MaterialCommunityIcons name={sports.name} size={27} color="#000000" style={{justifyContent:'flex-start'}} ></MaterialCommunityIcons>
+           <Text style={{fontSize:10}}>{sports.activity}</Text>
+           </View>
+            ))}
+           
+           </View>  }
          
          <Text style={{ fontWeight:"bold", fontSize:15, color:'#ffffff',paddingBottom:10, alignSelf:'flex-start'}}>Choose your Date of Booking : </Text>
          <View style={styles.iconmenu}>
@@ -334,6 +352,7 @@ export default function BookingDetailsScreen ({navigation,route}){
           
           />
           }
+          
 
          <View style={{alignSelf:'flex-start'}}>
           <Text style={{fontWeight:"bold", paddingBottom:"2%",fontSize:15, color:'#9ceb4d'}}>Selected Date : {stringdate}</Text>
@@ -402,6 +421,14 @@ export default function BookingDetailsScreen ({navigation,route}){
           </View>
           </View>
           </ScrollView>
+          <View style={{position:'absolute',left:"35%",top:'50%',padding:"3%"}}>
+           {loader &&
+           <View style={{backgroundColor:'#a9e055',borderRadius:15, padding:"3%",paddingTop:'3%',paddingBottom:"3%"}}>
+           <ActivityIndicator size='large' color="#000000" />
+           <Text style={{fontWeight:'bold',alignSelf:'center'}}>Loading...</Text>
+           </View>
+           }
+           </View>
     </View>
     
         </>
@@ -542,9 +569,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 14,
     backgroundColor: '#9cdb25',
-    marginTop: 8,
-    marginRight: 5,
-    paddingHorizontal: 8,
+    marginTop: "2%",
+    marginRight: "1.2%",
+    paddingHorizontal: "1.5%",
     paddingVertical: 8,
     
   },
@@ -559,9 +586,30 @@ const styles = StyleSheet.create({
  map: {
     flex: 1
   },
+  sportlist:{
+    width:"50%",
+    alignSelf:"flex-start", 
+    flexDirection:'row'
+  },
+  sisebyside:{
+ 
+    flexDirection:'row',
+    alignItems:'center',
+   // backgroundColor:'red'
+  },
+  iconcontainer:
+   {backgroundColor:"#84a641",
+   width:'45%',
+     paddingVertical:'6%',
+     marginRight:'3%',
+     marginTop:'2%',
+     marginBottom:'3%',
+     borderRadius:5,
+     justifyContent:'center',
+     alignItems:'center'
+   },
    
   });
 
 
-
-
+  

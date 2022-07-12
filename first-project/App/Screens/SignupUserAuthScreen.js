@@ -3,7 +3,8 @@ import React, {useState, createRef,Component } from 'react';
 import { StyleSheet, Text, TextInput, View , Image, Button, Alert} from 'react-native';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from "axios";
-import {ip} from "../../constants"
+import {ip,appname} from "../../constants";
+
 
 
 export default function SignupUserAuthScreen ({navigation,route}){
@@ -17,7 +18,7 @@ export default function SignupUserAuthScreen ({navigation,route}){
     
     const CheckForOTP = await axios(
       {
-        url:`http://${ip}:3000/CheckForOTP?Email=${EmailID}`,
+        url:`${ip}/CheckForOTP?Email=${EmailID}`,
         method:"get"
         
       }
@@ -32,7 +33,7 @@ export default function SignupUserAuthScreen ({navigation,route}){
   if(OTP==SENT_OTP)
   {// API CALL TO UPDATE VERIFICATION STATUS OF USER
     const UpdateVerificationStatus = await axios({
-      url:`http://${ip}:3000/UpdateVerificationStatus`,
+      url:`${ip}/UpdateVerificationStatus`,
       method:"put",
       data:{
         email:EmailID,
@@ -61,7 +62,7 @@ export default function SignupUserAuthScreen ({navigation,route}){
          
          ></Icon>
 
-         <Text style={{fontWeight:"bold",paddingLeft:20, paddingTop:5, paddingBottom:1, fontSize:40, color:'#36c249',textAlign:'center'}}>{"My Turf India"}</Text>
+         <Text style={{fontWeight:"bold",paddingLeft:20, paddingTop:5, paddingBottom:1, fontSize:40, color:'#36c249',textAlign:'center'}}>{appname}</Text>
          <Text style={{paddingLeft:20, paddingTop:10, paddingBottom:30, fontSize:25, color:'#FFFFFF',textAlign:'center'}}>{"Please enter the OTP sent to your Entered Email"}</Text>
          
          <TextInput style={styles.input}

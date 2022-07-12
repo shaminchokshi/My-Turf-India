@@ -4,7 +4,8 @@ import {TextInput, StyleSheet , Text, View ,Button,ImageBackground, Alert} from 
 import  AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from 'axios';
-import {ip} from "../../constants"
+import {ip,appname} from "../../constants";
+
 
 export default function ForgotPassUserAuthScreen({navigation,route}) {
      
@@ -51,7 +52,7 @@ export default function ForgotPassUserAuthScreen({navigation,route}) {
         <Icon name="soccer-field" color="#3a7a25" size={70}></Icon>
         </View>
         <View>
-        <Text style={{fontWeight:"bold",paddingLeft:20, paddingBottom:30, fontSize:40, color:'#3a7a25'}}>{"My Turf India"}</Text>
+        <Text style={{fontWeight:"bold",paddingLeft:20, paddingBottom:30, fontSize:40, color:'#3a7a25'}}>{appname}</Text>
      
         </View>
 

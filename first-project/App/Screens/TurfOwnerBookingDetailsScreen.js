@@ -1,13 +1,14 @@
 //import { StatusBar } from 'expo-status-bar';
 import React, {useState, createRef, Component} from 'react';
-import { StyleSheet, Text,ScrollView, View , Button, Alert,Linking,ImageBackground,TouchableOpacity,Platform} from 'react-native';
+import { StyleSheet, Text,ScrollView, View , Button, Alert,Linking,ImageBackground,TouchableOpacity,Platform, ActivityIndicator} from 'react-native';
 import axios from "axios";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
 import { MultiSelect } from 'react-native-element-dropdown';
 import Icon from "react-native-vector-icons/Entypo";
 import  AsyncStorage from '@react-native-async-storage/async-storage';
-import {ip} from "../../constants"
+import {ip} from "../../constants";
+
 
 
 export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
@@ -21,6 +22,7 @@ export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
   const [selected, setSelected] = useState([]);
   const [stringdate,setstringdate]=useState('');
   const [asyncstoragetoken,setasyncstoragetoken] =useState('');
+  const [loader,setloader]=useState(false);
   const [PaymentOrderID,setPaymentOrderID]=useState("");
   const [pickervisible,setpickervisible]=useState(true);
   var PaymentOrderIDs;
@@ -51,13 +53,13 @@ export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
      Alert.alert("Please select a timeslot for booking !!")
     }
     else{
-
+        setloader(true);
       //api to get order id for payment by turfowner
       // const getorderid = async () => {
       
         
       //   const GetOrderId = await axios({
-      //     url: `http://${ip}:3000/create/turfownerorderId`,
+      //     url: `${ip}/create/turfownerorderId`,
       //     method: "post",
       //     headers:{
       //       Authorization: asyncstoragetoken,
@@ -79,7 +81,7 @@ export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
         for (let i = 0; i < selected.length; i++){
          const addDataToBookings=await axios({
 
-          url: `http://${ip}:3000/AddBookingDetails`,
+          url: `${ip}/AddBookingDetails`,
           method: "post",
           headers:{
             Authorization: asyncstoragetoken,
@@ -111,7 +113,7 @@ export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
         }
         
         const GetOrderId = await axios({
-          url: `http://${ip}:3000/create/turfownerorderId`,
+          url: `${ip}/create/turfownerorderId`,
           method: "post",
           headers:{
             Authorization: asyncstoragetoken,
@@ -153,6 +155,7 @@ export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
            TimingArray:TimingArray,
           });
            setSelected([]);
+           setloader(false);
          }
     }
   }
@@ -206,7 +209,7 @@ export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
       
       //API to get all the booked slots of a turf on a  particular date details
       const GetAlreadyBookedSlots = await axios({
-        url: `http://${ip}:3000/GetAlreadyBookedSlots?turfid=${IDofTurf}&DateOfBooking=${Entrydate}`,
+        url: `${ip}/GetAlreadyBookedSlots?turfid=${IDofTurf}&DateOfBooking=${Entrydate}`,
         method: "get",
         headers: {
           Authorization: asyncstoragetoken,
@@ -382,6 +385,14 @@ export default function TurfOwnerBookingDetailsScreen ({navigation,route}){
           </View>
           </View>
           </ScrollView>
+          <View style={{position:'absolute',left:"35%",top:'50%',padding:"3%"}}>
+           {loader &&
+           <View style={{backgroundColor:'#a9e055',borderRadius:15, padding:"3%",paddingTop:'3%',paddingBottom:"3%"}}>
+           <ActivityIndicator size='large' color="#000000" />
+           <Text style={{fontWeight:'bold',alignSelf:'center'}}>Loading...</Text>
+           </View>
+           }
+           </View>
     </View>
     
         </>

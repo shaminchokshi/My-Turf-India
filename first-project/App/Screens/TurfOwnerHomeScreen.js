@@ -6,7 +6,7 @@ import axios from "axios";
 import  AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from "react-native-vector-icons/FontAwesome";
 import {Menu, MenuOptions, MenuOption, MenuTrigger,} from 'react-native-popup-menu';
-import {ip} from "../../constants"
+import {ip} from "../../constants";
 
 
 export default function TurfOwnwerHomeScreen({ navigation, route }) {
@@ -60,7 +60,7 @@ GetAsyncStorageData();
       
     //API to get self booking price per hour
      const Getselfbookingprice = await axios({
-        url: `http://${ip}:3000/Getselfbookingprice`,
+        url: `${ip}/Getselfbookingprice`,
         method: "get",
         headers: {
           Authorization: asyncstoragetoken,
@@ -79,7 +79,7 @@ const seemyturfs= async()=>{
       
       //API to get all the booked slots of a turf on a  particular date details
        const GetTurfID = await axios({
-          url: `http://${ip}:3000/GetTurfID?TurfOwnerKey=${UserID}`,
+          url: `${ip}/GetTurfID?TurfOwnerKey=${UserID}`,
           method: "get",
           headers: {
             Authorization: asyncstoragetoken,
@@ -91,6 +91,9 @@ const seemyturfs= async()=>{
   GetIDofTurf();
 }
 
+useEffect(() => {
+  seemyturfs();
+});
 
 
 
@@ -111,7 +114,7 @@ function getsbookedslots(IDofTurf){
     
     //API to get all the booked slots of a turf on a  particular date details
     const GetAlreadyBookedSlots = await axios({
-      url: `http://${ip}:3000/GetAlreadyBookedSlots?turfid=${IDofTurf}&DateOfBooking=${Entrydate}`,
+      url: `${ip}/GetAlreadyBookedSlots?turfid=${IDofTurf}&DateOfBooking=${Entrydate}`,
       method: "get",
       headers: {
         Authorization: asyncstoragetoken,
@@ -140,7 +143,7 @@ function getsbookedslots(IDofTurf,Date){
     
     //API to get all the booked slots of a turf on a  particular date details
     const GetAlreadyBookedSlots = await axios({
-      url: `http://${ip}:3000/GetAlreadyBookedSlots?turfid=${IDofTurf}&DateOfBooking=${Entrydate}`,
+      url: `${ip}/GetAlreadyBookedSlots?turfid=${IDofTurf}&DateOfBooking=${Entrydate}`,
       method: "get",
       headers: {
         Authorization: asyncstoragetoken,
@@ -183,6 +186,7 @@ return(
     <>
     <View style={{padding:10}}>
       <Text style={{fontWeight:'bold', paddingBottom:5 ,fontSize:18, color:'white',paddingBottom:10,alignSelf:"flex-start"}}>Click the Turf for which you want to see today's Bookings</Text>
+      
      {idofturf.map(({TurfID,TurfName }) => (
        <View style={{padding:"1%"}}>
        <Button 
@@ -196,10 +200,21 @@ return(
      </View>
      <ScrollView >
     
-     {Slotarray.map(({BookingStartTime,BookingEndTime,FirstName,DateOfBooking}) => (
-        <View style={styles.formcontainer}>
+     {Slotarray.length==[]?
+       <View style={{marginTop:"50%",padding:15, width:"65%", alignItems:'center',backgroundColor:'#84c94b',alignSelf:'center',borderRadius:15}}>
+        <Icon
+            name="frown-o"
+            color="#ffffff"
+            size={40}
+            style={{padding:10}}
+            ></Icon>
+       <Text style={{ fontWeight:"bold", fontSize:17, color:'#ffffff',alignSelf:'center'}}>No bookings today !   </Text>
+       </View>
+       :
+     Slotarray.map(({BookingStartTime,BookingEndTime,FirstName,DateOfBooking}) => (
+        <View style={styles.listcontainer}>
           
-          <Text style={{ paddingBottom:5 ,fontSize:17, color:'white',paddingBottom:10,alignSelf:"flex-start"}}>Timings: {BookingStartTime}-{BookingEndTime}</Text>
+          <Text style={{ paddingBottom:"1%" ,fontSize:17, color:'white',alignSelf:"flex-start"}}>Timings: {BookingStartTime}-{BookingEndTime}</Text>
         </View>
        ))}
      </ScrollView>
@@ -207,13 +222,14 @@ return(
     }  
     {SelfBookingRender &&
     <ScrollView style={{width:"100%"}}>
+      
      {idofturf.map(({ TurfID ,TurfName, Address, Phone, PricePerHour,TurfStartTime,TurfEndTime,latitude,longitude }) =>
            
            <View style={styles.Cards}>
-           <Text style={{ fontWeight:"bold", fontSize:30, color:'#9ceb4d',paddingBottom:10}}>{TurfName}</Text>
-           <Text style={{ paddingBottom:5 ,fontSize:20, color:'white',paddingBottom:10}}>{Address}</Text>
-           <Text style={{ fontSize:17, color:'white',paddingBottom:10}}>{Phone}</Text>
-           <Text style={{ fontSize:17, color:'#9ceb4d',textAlign:'left'}}>₹ {selfbookingprice} /Hr</Text>
+           <Text style={{ fontWeight:"bold", fontSize:25, color:'#9ceb4d',paddingBottom:10}}>{TurfName}</Text>
+           <Text style={{ paddingBottom:5 ,fontSize:18, color:'white',paddingBottom:10}}>{Address}</Text>
+           <Text style={{ fontSize:15, color:'white',paddingBottom:10}}>{Phone}</Text>
+           <Text style={{ fontSize:15, color:'#9ceb4d',textAlign:'left'}}>₹ {selfbookingprice} /Hr</Text>
            <View style={{alignSelf:"flex-end",}} >
              <View style={styles.buttoncontainer}>
            <Button title="Book Now"  onPress={()=>navigation.navigate("TurfOwnerBookingDetailsScreen",
@@ -240,16 +256,17 @@ return(
 
 <View style={styles.navbar}>
   <View style={{alignItems:'center',paddingRight:"5%"}}>
-  <Text style={{fontWeight:'bold',color:"white"}}>See Todays Bookings</Text>
+  
   <Icon 
     name="list-alt"
     color="#ffffff"
     size={30}
     onPress={()=>{SetTodaysBookingsRender(true), SetSelfBookingRender(false),seemyturfs(),GetselfBookingPrice();}}
   ></Icon>
+  <Text style={{color:"white"}}>See Todays Bookings</Text>
   </View>
   <View style={{alignItems:'center'}}>
-  <Text style={{fontWeight:'bold',color:"white"}}>Prebook Slots</Text>
+  
   <Icon 
     name="pencil-square-o"
     color="#ffffff"
@@ -257,6 +274,7 @@ return(
     size={30}
     onPress={()=>{SetSelfBookingRender(true),SetTodaysBookingsRender(false),seemyturfs(),GetselfBookingPrice();}}
   ></Icon>
+  <Text style={{color:"white"}}>Prebook Slots</Text>
   </View>
     
       </View>
@@ -314,6 +332,18 @@ const styles = StyleSheet.create({
         //marginHorizontal:20,
         alignItems:'flex-start'
       },
+
+
+      listcontainer: {
+        padding:"4%",
+        backgroundColor:'#212121',
+        width:"100%",
+        borderRadius: 20,
+        marginBottom:"2%",
+        marginTop:"2%",
+        alignItems:'center'
+      },
+
       topcontainer:{
         backgroundColor:'#141414',
         height: 45,

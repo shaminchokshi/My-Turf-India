@@ -4,7 +4,8 @@ import {TextInput, StyleSheet , Text, View ,Button,ImageBackground, Alert} from 
 import  AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from 'axios';
-import {ip} from "../../constants"
+import {ip,appname} from "../../constants";
+
 
 export default function SetNewPasswordScreen({navigation,route}) {
     
@@ -34,7 +35,7 @@ export default function SetNewPasswordScreen({navigation,route}) {
       if(Password.match(Passwordformat) && ConfirmPassword==Password)
       {
         const PasswordUpdate = await axios({
-            url:`http://${ip}:3000/UpdatePassword`,
+            url:`${ip}/UpdatePassword`,
             method:"put",
             data:{
               Email:route.params.Email,
@@ -77,7 +78,7 @@ export default function SetNewPasswordScreen({navigation,route}) {
         <Icon name="soccer-field" color="#3a7a25" size={70}></Icon>
         </View>
         <View>
-        <Text style={{fontWeight:"bold",paddingLeft:20, paddingBottom:30, fontSize:40, color:'#3a7a25'}}>{"My Turf India"}</Text>
+        <Text style={{fontWeight:"bold",paddingLeft:20, paddingBottom:30, fontSize:40, color:'#3a7a25'}}>{appname}</Text>
         </View>
         <Text style={{ fontSize:22, color:'white',textAlign:'left',paddingBottom:10,paddingLeft:10,}}>Please enter new password</Text>
         <TextInput style={styles.input}

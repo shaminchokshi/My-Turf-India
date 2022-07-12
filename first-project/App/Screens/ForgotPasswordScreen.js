@@ -4,7 +4,8 @@ import {TextInput, StyleSheet , Text, View ,Button,ImageBackground, Alert} from 
 import  AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from 'axios';
-import {ip} from "../../constants"
+import {ip,appname} from "../../constants";
+
 
 export default function ForgotPasswordScreen({navigation,route}) {
     
@@ -26,7 +27,7 @@ export default function ForgotPasswordScreen({navigation,route}) {
       
      // api call  to check if email  exists or not
       const EmailExists = await axios({
-        url:`http://${ip}:3000/GetEmail?Email=${Email}`,
+        url:`${ip}/GetEmail?Email=${Email}`,
         method:"get",
         
       })
@@ -39,7 +40,7 @@ export default function ForgotPasswordScreen({navigation,route}) {
 
        if(EmailExists.data[0]!=null){
        const resp = await axios({
-         url:`http://${ip}:3000`,
+         url:`${ip}`,
          method:"post",
          data:{
            email:Email,
@@ -89,7 +90,7 @@ export default function ForgotPasswordScreen({navigation,route}) {
         <Icon name="soccer-field" color="#3a7a25" size={70}></Icon>
         </View>
         <View>
-        <Text style={{fontWeight:"bold",paddingLeft:20, paddingBottom:30, fontSize:40, color:'#3a7a25'}}>{"My Turf India"}</Text>
+        <Text style={{fontWeight:"bold",paddingLeft:20, paddingBottom:30, fontSize:40, color:'#3a7a25'}}>{appname}</Text>
         </View>
         
            <Text style={{ fontSize:22, color:'white',textAlign:'left',paddingBottom:10,paddingLeft:10,}}>Please enter your email</Text>

@@ -24,7 +24,8 @@ import { MenuProvider } from 'react-native-popup-menu';
 const Stack = createNativeStackNavigator();
 
 
-export default function App() {
+export default function App() {           
+   
   
   return (
     <> 

@@ -1,1 +1,2 @@
-export const ip="192.168.68.115";
+export const ip="https://evening-earth-41490.herokuapp.com";
+export const appname="SportIndia.io";

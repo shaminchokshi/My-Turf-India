@@ -4,7 +4,7 @@ import {TextInput, StyleSheet , Text, View ,Button,ImageBackground, Alert} from 
 import  AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from 'axios';
-import {ip} from "../../constants"
+import {appname, ip} from "../../constants";
 
 export default function VerifyEmailScreen({navigation,route}) {
      
@@ -31,7 +31,7 @@ export default function VerifyEmailScreen({navigation,route}) {
       if(OTP==route.params.OTP){
         setOTPError(false);
         const EmailUpdate = await axios({
-            url:`http://${ip}:3000/UpdateEmail`,
+            url:`${ip}/UpdateEmail`,
             method:"put",
             data:{
               Email: route.params.Email,
@@ -106,7 +106,7 @@ export default function VerifyEmailScreen({navigation,route}) {
         <Icon name="soccer-field" color="#3a7a25" size={70}></Icon>
         </View>
         <View>
-        <Text style={{fontWeight:"bold",paddingLeft:20, paddingBottom:30, fontSize:40, color:'#3a7a25'}}>{"My Turf India"}</Text>
+        <Text style={{fontWeight:"bold",paddingLeft:20, paddingBottom:30, fontSize:40, color:'#3a7a25'}}>{appname}</Text>
      
         </View>
 

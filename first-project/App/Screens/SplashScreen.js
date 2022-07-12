@@ -3,7 +3,8 @@ import React from 'react';
 import { StyleSheet, Text, View , ImageBackground, Button} from 'react-native';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import  AsyncStorage from '@react-native-async-storage/async-storage';
-import {ip} from "../../constants"
+import {ip,appname} from "../../constants";
+
 
 const SplashScreen=({navigation}) => {
 
@@ -56,7 +57,7 @@ const SplashScreen=({navigation}) => {
          
          ></Icon>
 
-         <Text style={{fontWeight:"bold",paddingLeft:20, paddingTop:20, paddingBottom:1, fontSize:40, color:'#3a7a25',textAlign:'center'}}>{"My Turf India"}</Text>
+         <Text style={{fontWeight:"bold",paddingLeft:20, paddingTop:20, paddingBottom:1, fontSize:40, color:'#3a7a25',textAlign:'center'}}>{appname}</Text>
          <Text style={{paddingLeft:20, paddingTop:10, paddingBottom:30, fontSize:17, color:'#FFFFFF',textAlign:'center'}}>{"Book Football Arenas and Cricket grounds around you in a Jiffy"}</Text>
          
          

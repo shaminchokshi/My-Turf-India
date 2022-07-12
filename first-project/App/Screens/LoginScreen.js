@@ -4,7 +4,7 @@ import {TextInput, StyleSheet, Text, View ,Button,ImageBackground, ScrollView,Pl
 import  AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from 'axios';
-import {ip} from "../../constants"
+import {ip,appname} from "../../constants"
 
 
 export default function LoginScreen({navigation,route}) {
@@ -24,7 +24,7 @@ export default function LoginScreen({navigation,route}) {
     const getuserdetail=async()=>{
       const GetLoginDetails = await axios(
         {
-          url:`http://${ip}:3000/GetLoginDetails`,
+          url:`${ip}/GetLoginDetails`,
           method:"post",
           data:{
             Email:Email,
@@ -40,7 +40,7 @@ export default function LoginScreen({navigation,route}) {
     const getjwt=async()=>{
       const token = await axios(
         {
-          url:`http://${ip}:3000/token`,
+          url:`${ip}/token`,
           method:"get",
           
           
@@ -114,7 +114,7 @@ export default function LoginScreen({navigation,route}) {
         <Icon name="soccer-field" color="#3a7a25" size={70}></Icon>
         </View>
         <View>
-        <Text style={{fontWeight:"bold",paddingLeft:20, paddingBottom:"2%", fontSize:45, color:'#3a7a25'}}>{"My Turf India"}</Text>
+        <Text style={{fontWeight:"bold",paddingLeft:20, paddingBottom:"2%", fontSize:45, color:'#3a7a25'}}>{appname}</Text>
      
         </View>
         

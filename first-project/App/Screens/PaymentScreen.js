@@ -1,5 +1,5 @@
 import React, { useState, createRef, Component, useEffect } from "react";
-import {TextInput, StyleSheet, Text,View,Image,ImageBackground,ScrollView,Button,TouchableOpacity,TouchableHighlight,SafeAreaView,AppRegistry, Alert} from "react-native";
+import {TextInput, StyleSheet, Text,View,Image,ImageBackground,ScrollView,Button, Alert, ActivityIndicator} from "react-native";
 import axios from "axios";
 import Icon from "react-native-vector-icons/Entypo";
 import {ip} from "../../constants"
@@ -9,6 +9,7 @@ import  AsyncStorage from '@react-native-async-storage/async-storage';
  export default function PaymentScreen({ navigation, route }) {
  
   const [asyncstoragetoken,setasyncstoragetoken] =useState('');
+  const [loader,setloader]=useState(false);
 
   // function to get data (auth key) from the async storage 
   const GetAsyncStorageData = async()=>{
@@ -25,18 +26,18 @@ import  AsyncStorage from '@react-native-async-storage/async-storage';
    }
  GetAsyncStorageData();
 
-  console.log(`https://mticheckout.000webhostapp.com/?orderid=${route.params.orderid}&bookings=${JSON.stringify(route.params.BookingArray)}`);
+  console.log(`https://checkoutmti.000webhostapp.com/?orderid=${route.params.orderid}&bookings=${JSON.stringify(route.params.BookingArray)}`);
 
   const goback=async()=>{
 
-
+ setloader(true);
     const deleteunpaidbookings=async()=>{
 
       for (let i = 0; i < route.params.BookingArray.length; i++){
         
        const deleteDatafromBookings=await axios({
 
-        url: `http://${ip}:3000/DeleteUnpaidBookingsOnBack`,
+        url: `${ip}/DeleteUnpaidBookingsOnBack`,
         method: "delete",
          headers:{
            Authorization: asyncstoragetoken,
@@ -57,6 +58,21 @@ import  AsyncStorage from '@react-native-async-storage/async-storage';
 
 
     navigation.goBack();
+    setloader(false);
+
+   }
+
+  const handleNavStateChange = (navState)=>{
+    
+   if(navState.url ==='https://checkoutmti.000webhostapp.com/PaymentSuccess.html')
+   {
+    goback();
+   }
+   if(navState.url ==='https://checkoutmti.000webhostapp.com/PaymentFailure.html')
+   {
+    goback();
+   }
+
 
    }
 
@@ -91,13 +107,25 @@ import  AsyncStorage from '@react-native-async-storage/async-storage';
     <Text style={styles.heading}>Total Amount :  </Text>
      <Text style={styles.subheading}>Rs. {route.params.PaymentStatus}  </Text>
       </View>
-      
+      <ScrollView>
       <WebView 
       style={styles.formcontainer}
-      source={{ uri: `https://mticheckout.000webhostapp.com/?orderid=${route.params.orderid}&bookings=${JSON.stringify(route.params.BookingArray)}` }} 
+      source={{ uri: `https://checkoutmti.000webhostapp.com/?orderid=${route.params.orderid}&bookings=${JSON.stringify(route.params.BookingArray)}` }} 
+      onNavigationStateChange={handleNavStateChange}
       />
-      
+      </ScrollView>
+
+      <View style={{position:'absolute',left:"35%",top:'50%',padding:"3%"}}>
+           {loader &&
+           <View style={{backgroundColor:'#a9e055',borderRadius:15, padding:"3%",paddingTop:'3%',paddingBottom:"3%"}}>
+           <ActivityIndicator size='large' color="#000000" />
+           <Text style={{fontWeight:'bold',alignSelf:'center'}}>Loading...</Text>
+           </View>
+           }
+           </View>
+
       </View>
+      
       </>
 
       );
@@ -114,7 +142,7 @@ const styles = StyleSheet.create({
       flex: 1,
       backgroundColor:'#143f14',
      // alignItems:'center',
-      justifyContent:"center"
+     // justifyContent:"center"
       
       },
     
@@ -125,13 +153,13 @@ const styles = StyleSheet.create({
       opacity:0.95,
       padding:"2%",
         marginTop:"3%",
-        backgroundColor:'#212121',
+        //backgroundColor:'#212121',
         width:"82%",
+        height:520,
         borderRadius: 20,
-        marginBottom:30,
-        marginTop:10,
+        //marginBottom:30,
         alignSelf:'center',
-        justifyContent:"center",
+       // justifyContent:"center",
         
       },
 
